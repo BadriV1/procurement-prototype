@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glean Procurement Intelligence Platform — MVP Prototype</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #F3F4F6; }
-</style>
+<title>Glean Procurement Intelligence Platform</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#F3F4F6}@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}input::placeholder{color:#9CA3AF}select{appearance:auto}</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="root"></div>
@@ -15,900 +13,348 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const {useState,useEffect,useRef}=React;
 
-
-// ─── Sample Data ───────────────────────────────────────────────
-const suppliers = [
-  {
-    id: "SUP-001", name: "Precision Steel Corp", location: "Detroit, MI",
-    categories: ["Steel Stampings", "Structural Components"],
-    qualityScore: 92, deliveryScore: 88, costScore: 78, financialHealth: "Strong",
-    annualSpend: 12400000, contractExpiry: "2026-08-15", riskLevel: "Low",
-    defectRate: "0.3%", onTimeDelivery: "94%", priceChangeLast12m: "+4.2%",
-    certifications: ["ISO 9001", "IATF 16949", "ISO 14001"]
-  },
-  {
-    id: "SUP-002", name: "Allied Fastener Group", location: "Cleveland, OH",
-    categories: ["Fasteners", "Bolts & Nuts"],
-    qualityScore: 85, deliveryScore: 91, costScore: 82, financialHealth: "Moderate",
-    annualSpend: 3200000, contractExpiry: "2025-11-30", riskLevel: "Medium",
-    defectRate: "0.8%", onTimeDelivery: "96%", priceChangeLast12m: "+1.8%",
-    certifications: ["ISO 9001", "IATF 16949"]
-  },
-  {
-    id: "SUP-003", name: "ThermoFlow Systems", location: "Jackson, MS",
-    categories: ["HVAC Systems", "Climate Control"],
-    qualityScore: 88, deliveryScore: 79, costScore: 74, financialHealth: "Strong",
-    annualSpend: 8700000, contractExpiry: "2026-03-01", riskLevel: "Low",
-    defectRate: "0.5%", onTimeDelivery: "87%", priceChangeLast12m: "+6.1%",
-    certifications: ["ISO 9001", "ASHRAE 90.1"]
-  },
-  {
-    id: "SUP-004", name: "Guangzhou Electronics Co.", location: "Guangzhou, China",
-    categories: ["Electronic Components", "Wiring Harnesses"],
-    qualityScore: 76, deliveryScore: 72, costScore: 91, financialHealth: "Moderate",
-    annualSpend: 5100000, contractExpiry: "2025-06-30", riskLevel: "High",
-    defectRate: "1.4%", onTimeDelivery: "82%", priceChangeLast12m: "-2.3%",
-    certifications: ["ISO 9001"],
-    riskNotes: "Subject to 25% tariff increase effective Q3 2025. Lead times extended by 3 weeks."
-  },
-  {
-    id: "SUP-005", name: "MidSouth HVAC Solutions", location: "Tupelo, MS",
-    categories: ["HVAC Systems", "Ventilation"],
-    qualityScore: 82, deliveryScore: 86, costScore: 88, financialHealth: "Strong",
-    annualSpend: 0, contractExpiry: null, riskLevel: "Low",
-    defectRate: "0.6%", onTimeDelivery: "91%", priceChangeLast12m: "N/A",
-    certifications: ["ISO 9001", "ASHRAE 90.1", "ENERGY STAR Partner"],
-    isAlternative: true
-  },
-  {
-    id: "SUP-006", name: "Nordic Fastening AB", location: "Gothenburg, Sweden",
-    categories: ["Fasteners", "Specialty Bolts"],
-    qualityScore: 95, deliveryScore: 84, costScore: 71, financialHealth: "Strong",
-    annualSpend: 0, contractExpiry: null, riskLevel: "Low",
-    defectRate: "0.1%", onTimeDelivery: "90%", priceChangeLast12m: "N/A",
-    certifications: ["ISO 9001", "IATF 16949", "ISO 14001", "ISO 45001"],
-    isAlternative: true
-  }
+const suppliers=[
+{id:"SUP-001",name:"Precision Steel Corp",location:"Detroit, MI",categories:["Steel Stampings"],qualityScore:92,deliveryScore:88,costScore:78,financialHealth:"Strong",annualSpend:12400000,contractExpiry:"2026-08-15",riskLevel:"Low",defectRate:"0.3%",onTimeDelivery:"94%",priceChangeLast12m:"+4.2%",certifications:["ISO 9001","IATF 16949"]},
+{id:"SUP-002",name:"Allied Fastener Group",location:"Cleveland, OH",categories:["Fasteners"],qualityScore:85,deliveryScore:91,costScore:82,financialHealth:"Moderate",annualSpend:3200000,contractExpiry:"2025-11-30",riskLevel:"Medium",defectRate:"0.8%",onTimeDelivery:"96%",priceChangeLast12m:"+1.8%",certifications:["ISO 9001"]},
+{id:"SUP-003",name:"ThermoFlow Systems",location:"Jackson, MS",categories:["HVAC Systems"],qualityScore:88,deliveryScore:79,costScore:74,financialHealth:"Strong",annualSpend:8700000,contractExpiry:"2026-03-01",riskLevel:"Low",defectRate:"0.5%",onTimeDelivery:"87%",priceChangeLast12m:"+6.1%",certifications:["ISO 9001","ASHRAE 90.1"]},
+{id:"SUP-004",name:"Guangzhou Electronics Co.",location:"Guangzhou, China",categories:["Electronic Components"],qualityScore:76,deliveryScore:72,costScore:91,financialHealth:"Moderate",annualSpend:5100000,contractExpiry:"2025-06-30",riskLevel:"High",defectRate:"1.4%",onTimeDelivery:"82%",priceChangeLast12m:"-2.3%",certifications:["ISO 9001"],riskNotes:"Subject to 25% tariff. Lead times +3 weeks."},
+{id:"SUP-005",name:"MidSouth HVAC Solutions",location:"Tupelo, MS",categories:["HVAC Systems"],qualityScore:82,deliveryScore:86,costScore:88,financialHealth:"Strong",annualSpend:0,contractExpiry:null,riskLevel:"Low",defectRate:"0.6%",onTimeDelivery:"91%",priceChangeLast12m:"N/A",certifications:["ISO 9001"],isAlternative:true}
 ];
 
-const skus = [
-  { id: "SKU-4401", name: "Front Door Panel Assembly", category: "Steel Stampings", supplier: "Precision Steel Corp", unitCost: 84.20, annualVolume: 48000, warrantySpend: 142000, defectRate: "0.4%" },
-  { id: "SKU-4402", name: "Rear Quarter Panel", category: "Steel Stampings", supplier: "Precision Steel Corp", unitCost: 67.50, annualVolume: 48000, warrantySpend: 98000, defectRate: "0.2%" },
-  { id: "SKU-7201", name: "M8 Hex Flange Bolt (Grade 10.9)", category: "Fasteners", supplier: "Allied Fastener Group", unitCost: 0.42, annualVolume: 2400000, warrantySpend: 12000, defectRate: "0.6%" },
-  { id: "SKU-7202", name: "M10 Lock Nut (Zinc Plated)", category: "Fasteners", supplier: "Allied Fastener Group", unitCost: 0.18, annualVolume: 1800000, warrantySpend: 4000, defectRate: "0.9%" },
-  { id: "SKU-3301", name: "Cabin HVAC Module", category: "HVAC Systems", supplier: "ThermoFlow Systems", unitCost: 312.00, annualVolume: 24000, warrantySpend: 890000, defectRate: "0.7%" },
-  { id: "SKU-5501", name: "Main Wiring Harness", category: "Electronic Components", supplier: "Guangzhou Electronics Co.", unitCost: 145.00, annualVolume: 24000, warrantySpend: 340000, defectRate: "1.8%" },
-  { id: "SKU-5502", name: "Dashboard Control Module", category: "Electronic Components", supplier: "Guangzhou Electronics Co.", unitCost: 89.00, annualVolume: 24000, warrantySpend: 210000, defectRate: "1.1%" },
+const skus=[
+{id:"SKU-4401",name:"Front Door Panel Assembly",category:"Steel Stampings",supplier:"Precision Steel Corp",unitCost:84.20,annualVolume:48000,warrantySpend:142000,defectRate:"0.4%"},
+{id:"SKU-4402",name:"Rear Quarter Panel",category:"Steel Stampings",supplier:"Precision Steel Corp",unitCost:67.50,annualVolume:48000,warrantySpend:98000,defectRate:"0.2%"},
+{id:"SKU-7201",name:"M8 Hex Flange Bolt",category:"Fasteners",supplier:"Allied Fastener Group",unitCost:0.42,annualVolume:2400000,warrantySpend:12000,defectRate:"0.6%"},
+{id:"SKU-7202",name:"M10 Lock Nut",category:"Fasteners",supplier:"Allied Fastener Group",unitCost:0.18,annualVolume:1800000,warrantySpend:4000,defectRate:"0.9%"},
+{id:"SKU-3301",name:"Cabin HVAC Module",category:"HVAC Systems",supplier:"ThermoFlow Systems",unitCost:312.00,annualVolume:24000,warrantySpend:890000,defectRate:"0.7%"},
+{id:"SKU-5501",name:"Main Wiring Harness",category:"Electronic Components",supplier:"Guangzhou Electronics Co.",unitCost:145.00,annualVolume:24000,warrantySpend:340000,defectRate:"1.8%"},
+{id:"SKU-5502",name:"Dashboard Control Module",category:"Electronic Components",supplier:"Guangzhou Electronics Co.",unitCost:89.00,annualVolume:24000,warrantySpend:210000,defectRate:"1.1%"}
 ];
 
-const opportunities = [
-  {
-    id: "OPP-01", title: "Renegotiate HVAC pricing ahead of contract renewal",
-    impact: 420000, confidence: "High", ease: "Medium", status: "Ready to act",
-    trigger: "Contract renewal in 90 days",
-    category: "HVAC Systems", supplier: "ThermoFlow Systems",
-    description: "ThermoFlow's HVAC pricing is 6.1% above market benchmark. Contract expires March 2026. Current ZBB model shows $312/unit can be reduced to $294/unit based on commodity deflation in copper and aluminum. MidSouth HVAC Solutions available as qualified alternative at $289/unit.",
-    recommendedActions: ["Launch competitive RFP via Coupa", "Schedule negotiation with ThermoFlow using ZBB model", "Qualify MidSouth HVAC as backup supplier"],
-    marketContext: "Copper prices down 8% YoY. Aluminum flat. HVAC component market softening with 3 new entrants in Southeast US.",
-    skusAffected: ["SKU-3301"],
-    createdDate: "2026-01-15",
-    source: "Contract timeline + market price monitoring"
-  },
-  {
-    id: "OPP-02", title: "Dual-source electronic components to mitigate tariff risk",
-    impact: 680000, confidence: "Medium", ease: "Hard", status: "In review",
-    trigger: "25% tariff increase on Chinese imports",
-    category: "Electronic Components", supplier: "Guangzhou Electronics Co.",
-    description: "New 25% tariff on Chinese electronic components increases effective unit cost of SKU-5501 from $145 to $181. Total annual exposure: $864K. Domestic alternatives identified at $162/unit (Delphi Technologies) and $158/unit (Lear Corp) but require 6-month qualification.",
-    recommendedActions: ["Initiate supplier qualification for Delphi Technologies", "Request tariff mitigation proposal from Guangzhou", "Launch RFP for domestic wiring harness suppliers"],
-    marketContext: "US tariff policy on Chinese electronics effective Q3 2025. 12 major OEMs actively reshoring electronic component supply. Lead times for domestic suppliers extending.",
-    skusAffected: ["SKU-5501", "SKU-5502"],
-    createdDate: "2026-01-22",
-    source: "Tariff monitoring + risk intelligence feed"
-  },
-  {
-    id: "OPP-03", title: "Fastener specification consolidation",
-    impact: 180000, confidence: "High", ease: "Easy", status: "Ready to act",
-    trigger: "Engineering review identified 12 redundant specs",
-    category: "Fasteners", supplier: "Allied Fastener Group",
-    description: "Cross-referencing BOM data with engineering specs reveals 12 fastener variants that can be consolidated to 4 standard specifications. Volume consolidation enables tier pricing from Allied Fastener. Additional savings from reduced inventory carrying costs.",
-    recommendedActions: ["Confirm specification changes with engineering", "Negotiate volume discount with Allied Fastener", "Update BOM in Teamcenter PLM"],
-    marketContext: "Steel wire rod prices stable. Fastener market competitive with excess capacity. Volume discounts of 15-22% available at consolidated volumes.",
-    skusAffected: ["SKU-7201", "SKU-7202"],
-    createdDate: "2026-02-03",
-    source: "Engineering PLM analysis + spend consolidation"
-  },
-  {
-    id: "OPP-04", title: "Steel stamping cost reduction via material substitution",
-    impact: 310000, confidence: "Medium", ease: "Medium", status: "Investigating",
-    trigger: "Commodity price analysis flagged opportunity",
-    category: "Steel Stampings", supplier: "Precision Steel Corp",
-    description: "ZBB analysis shows current hot-rolled steel spec can be replaced with high-strength low-alloy (HSLA) steel for door panels. Thinner gauge achieves same structural requirements at 12% lower material cost. Requires engineering validation and supplier capability confirmation.",
-    recommendedActions: ["Request engineering feasibility study", "Get HSLA pricing from Precision Steel", "Run cost model comparison: HRS vs HSLA"],
-    marketContext: "HSLA steel pricing favorable. Spread vs. HRS widening. Precision Steel has HSLA capability but not currently contracted for it.",
-    skusAffected: ["SKU-4401", "SKU-4402"],
-    createdDate: "2026-02-10",
-    source: "ZBB cost model + commodity price monitoring"
-  },
-  {
-    id: "OPP-05", title: "Allied Fastener contract renewal pricing reset",
-    impact: 96000, confidence: "High", ease: "Easy", status: "Ready to act",
-    trigger: "Contract expires November 2025",
-    category: "Fasteners", supplier: "Allied Fastener Group",
-    description: "Current contract pricing set 2 years ago at higher commodity rates. Market benchmarks show 8-12% reduction achievable. Nordic Fastening AB qualified as alternative with superior quality scores (95 vs 85) though at premium pricing. Leverage competitive tension for best outcome.",
-    recommendedActions: ["Draft renegotiation email with updated market pricing", "Request quote from Nordic Fastening AB", "Prepare TCO comparison including quality cost differential"],
-    marketContext: "Fastener market oversupplied. Raw material costs down 6% since contract inception. Two new Asian suppliers entering US market.",
-    skusAffected: ["SKU-7201", "SKU-7202"],
-    createdDate: "2026-02-12",
-    source: "Contract timeline + market benchmark"
-  }
+const opportunities=[
+{id:"OPP-C01",classification:"Commodity Changes",title:"Copper price drop: renegotiate HVAC module pricing",impact:420000,confidence:"High",ease:"Medium",status:"Viewed",trigger:"Copper futures down 12% in 90 days",category:"HVAC Systems",supplier:"ThermoFlow Systems",
+description:"Copper prices declined 12% over the past quarter, from $4.15/lb to $3.65/lb. Copper tubing accounts for 22% of the Cabin HVAC Module cost. ThermoFlow has not passed through any savings despite contractual raw material adjustment clauses.",
+commodityData:{commodity:"Copper",priceNow:3.65,price3mAgo:4.15,price6mAgo:4.32,unit:"$/lb",changePercent:"-12.0%",trend:"Declining since Q3 2025. LME inventory at 18-month high."},
+tcoImpact:{currentMatCost:68.40,newMatBenchmark:60.20,savingsPerUnit:8.20,currentTotal:312.00,newTarget:303.80,qualityCost:37.08,logisticsTco:8.40,inventoryTco:4.20,adminTco:2.10,currentTco:363.78,newTco:355.58},
+skusAffected:["SKU-3301"],createdDate:"2026-02-01",marketContext:"LME copper inventory at 18-month high. Chile production up 8% YoY. Goldman revised forecast down. Three competing HVAC suppliers already adjusted pricing.",source:"Commodity monitoring + contract clause analysis"},
+
+{id:"OPP-C02",classification:"Commodity Changes",title:"Hot-rolled steel deflation: reset stamping pricing",impact:268000,confidence:"High",ease:"Easy",status:"Viewed",trigger:"HRS Midwest index down 8% QoQ",category:"Steel Stampings",supplier:"Precision Steel Corp",
+description:"Hot-rolled steel coil (Midwest) dropped from $820/ton to $754/ton over the past quarter. Steel sheet accounts for 38% of the Front Door Panel Assembly cost. Current contract includes quarterly price adjustment mechanism.",
+commodityData:{commodity:"Hot-Rolled Steel (Midwest)",priceNow:754,price3mAgo:820,price6mAgo:865,unit:"$/ton",changePercent:"-8.0%",trend:"Steady decline. US production up. Import pressure from Asian mills."},
+tcoImpact:{currentMatCost:32.40,newMatBenchmark:29.80,savingsPerUnit:2.60,currentTotal:84.20,newTarget:81.60,qualityCost:2.96,logisticsTco:4.80,inventoryTco:1.40,adminTco:1.20,currentTco:94.56,newTco:91.96},
+skusAffected:["SKU-4401","SKU-4402"],createdDate:"2026-02-05",marketContext:"US steel capacity utilization at 74%. Import volumes increasing from Vietnam and India. Most OEM contracts include quarterly resets.",source:"CRU Steel Index + contract monitoring"},
+
+{id:"OPP-C03",classification:"Commodity Changes",title:"Steel wire rod decline: fastener cost reduction",impact:142000,confidence:"Medium",ease:"Easy",status:"Investigating",trigger:"Wire rod prices down 6% since contract signing",category:"Fasteners",supplier:"Allied Fastener Group",
+description:"Steel wire rod declined 6% since Allied Fastener contract was signed. Pricing was set during elevated steel costs. Volume-weighted impact across M8 and M10 lines is significant given 4.2M units/year combined volume.",
+commodityData:{commodity:"Steel Wire Rod",priceNow:640,price3mAgo:668,price6mAgo:681,unit:"$/ton",changePercent:"-6.0%",trend:"Gradual decline. Fastener market oversupplied with excess capacity."},
+tcoImpact:{currentMatCost:0.14,newMatBenchmark:0.13,savingsPerUnit:0.01,currentTotal:0.42,newTarget:0.41,qualityCost:0.005,logisticsTco:0.02,inventoryTco:0.01,adminTco:0.005,currentTco:0.46,newTco:0.45},
+skusAffected:["SKU-7201","SKU-7202"],createdDate:"2026-02-08",marketContext:"Global fastener market oversupplied. Volume discounts of 15-22% available. Nordic Fastening AB offering competitive quotes.",source:"Raw material index + market intelligence"},
+
+{id:"OPP-R01",classification:"Contract Renewals",title:"ThermoFlow HVAC contract renewal",impact:520000,confidence:"High",ease:"Medium",status:"Under progress",trigger:"Contract expires March 2026 (90 days)",category:"HVAC Systems",supplier:"ThermoFlow Systems",
+description:"ThermoFlow contract expires in 90 days. Current pricing 6.1% above market benchmark. MidSouth HVAC Solutions qualified as alternative at $289/unit vs current $312.",
+skusAffected:["SKU-3301"],createdDate:"2026-01-15",marketContext:"HVAC component market softening. 3 new entrants in Southeast US.",source:"Contract timeline + market benchmark"},
+
+{id:"OPP-R02",classification:"Contract Renewals",title:"Allied Fastener contract pricing reset",impact:96000,confidence:"High",ease:"Easy",status:"Viewed",trigger:"Contract expires November 2025",category:"Fasteners",supplier:"Allied Fastener Group",
+description:"Contract pricing set 2 years ago at higher commodity rates. Benchmarks show 8-12% reduction achievable. Nordic Fastening AB qualified as alternative.",
+skusAffected:["SKU-7201","SKU-7202"],createdDate:"2026-02-12",marketContext:"Fastener market oversupplied. Raw material costs down 6% since contract inception.",source:"Contract timeline + market benchmark"},
+
+{id:"OPP-S01",classification:"Supply Chain Risks",title:"Dual-source electronics to mitigate tariff risk",impact:680000,confidence:"Medium",ease:"Hard",status:"Investigating",trigger:"25% tariff on Chinese electronic imports",category:"Electronic Components",supplier:"Guangzhou Electronics Co.",
+description:"New 25% tariff increases effective unit cost from $145 to $181. Annual exposure: $864K. Domestic alternatives: Delphi at $162/unit, Lear at $158/unit (6-month qualification).",
+skusAffected:["SKU-5501","SKU-5502"],createdDate:"2026-01-22",marketContext:"12 major OEMs actively reshoring. Domestic lead times extending. Tariff unlikely to reverse.",source:"Tariff monitoring + risk intelligence"},
+
+{id:"OPP-S02",classification:"Supply Chain Risks",title:"Guangzhou financial health deterioration",impact:340000,confidence:"Medium",ease:"Hard",status:"Viewed",trigger:"D&B score dropped from 72 to 58",category:"Electronic Components",supplier:"Guangzhou Electronics Co.",
+description:"Financial health score declined significantly. Combined with tariff exposure and 1.8% defect rate, concentration risk is elevated. Recommend accelerating domestic alternative qualification.",
+skusAffected:["SKU-5501","SKU-5502"],createdDate:"2026-02-10",marketContext:"Chinese electronics manufacturers facing margin pressure. Industry consolidation expected.",source:"D&B Financial + risk assessment"},
+
+{id:"OPP-V01",classification:"VAVE",title:"HSLA steel substitution for door panels",impact:310000,confidence:"Medium",ease:"Medium",status:"Investigating",trigger:"Engineering feasibility study completed",category:"Steel Stampings",supplier:"Precision Steel Corp",
+description:"High-strength low-alloy steel can replace current hot-rolled spec. Thinner gauge meets structural requirements at 12% lower material cost. Also improves fuel efficiency ratings.",
+skusAffected:["SKU-4401","SKU-4402"],createdDate:"2026-02-10",marketContext:"HSLA pricing favorable. Multiple suppliers capable. Weight reduction benefits.",source:"Engineering PLM + ZBB model"},
+
+{id:"OPP-V02",classification:"VAVE",title:"Fastener spec consolidation (12 to 4 variants)",impact:180000,confidence:"High",ease:"Easy",status:"Under progress",trigger:"Engineering review found 12 redundant specs",category:"Fasteners",supplier:"Allied Fastener Group",
+description:"BOM analysis reveals 12 fastener variants consolidatable to 4 standard specs. Volume consolidation enables tier pricing. Additional savings from reduced inventory carrying costs.",
+skusAffected:["SKU-7201","SKU-7202"],createdDate:"2026-02-03",marketContext:"Volume discounts of 15-22% available. Inventory reduction estimated at $45K/year.",source:"PLM analysis + spend consolidation"}
 ];
 
-// ─── ZBB / TCO Cost Models ─────────────────────────────────────
-const costModels = [
-  {
-    skuId: "SKU-3301", name: "Cabin HVAC Module", supplier: "ThermoFlow Systems",
-    currentUnitCost: 312.00, targetUnitCost: 294.00, annualVolume: 24000,
-    zbb: {
-      rawMaterials: [
-        { component: "Copper tubing", cost: 68.40, marketBenchmark: 61.20, delta: -7.20, note: "Copper down 8% YoY" },
-        { component: "Aluminum fins", cost: 42.00, marketBenchmark: 41.50, delta: -0.50, note: "Aluminum flat" },
-        { component: "Compressor unit", cost: 84.00, marketBenchmark: 79.00, delta: -5.00, note: "3 new suppliers in market" },
-        { component: "Electronic controls", cost: 31.20, marketBenchmark: 30.00, delta: -1.20, note: "Stable" },
-        { component: "Housing & brackets", cost: 18.60, marketBenchmark: 18.60, delta: 0, note: "At benchmark" },
-      ],
-      labor: { cost: 28.80, benchmark: 26.00, note: "Southeast US labor rates" },
-      overhead: { cost: 22.00, benchmark: 20.70, note: "Includes tooling amortization" },
-      logistics: { cost: 8.40, benchmark: 8.40, note: "Regional supplier, low freight" },
-      margin: { cost: 8.60, benchmark: 8.60, note: "Standard 2.8% supplier margin" },
-      totalCurrent: 312.00, totalTarget: 294.00
-    },
-    tco: {
-      unitPrice: 312.00,
-      qualityCost: 37.08,
-      qualityNote: "$890K warranty / 24K units = $37.08/unit. Defect rate: 0.7%",
-      logisticsCost: 8.40,
-      logisticsNote: "Inbound freight from Jackson, MS. 2-day transit.",
-      inventoryCost: 4.20,
-      inventoryNote: "15 days safety stock at 8% carrying cost",
-      adminCost: 2.10,
-      adminNote: "PO processing, receiving inspection, invoice matching",
-      totalTCO: 363.78,
-      benchmarkTCO: 341.50,
-      tcoGap: 22.28,
-      tcoGapPercent: "6.1%"
-    }
-  },
-  {
-    skuId: "SKU-5501", name: "Main Wiring Harness", supplier: "Guangzhou Electronics Co.",
-    currentUnitCost: 145.00, targetUnitCost: 158.00, annualVolume: 24000,
-    zbb: {
-      rawMaterials: [
-        { component: "Copper wire (various gauge)", cost: 38.50, marketBenchmark: 35.20, delta: -3.30, note: "Copper down, but supplier hasn't passed through" },
-        { component: "Connectors & terminals", cost: 29.00, marketBenchmark: 28.00, delta: -1.00, note: "Competitive market" },
-        { component: "Protective sleeving", cost: 12.80, marketBenchmark: 12.80, delta: 0, note: "At benchmark" },
-        { component: "Clips & fasteners", cost: 4.20, marketBenchmark: 4.00, delta: -0.20, note: "Minor variance" },
-        { component: "Labels & packaging", cost: 2.10, marketBenchmark: 2.10, delta: 0, note: "At benchmark" },
-      ],
-      labor: { cost: 22.40, benchmark: 38.00, note: "China labor advantage vs domestic" },
-      overhead: { cost: 14.00, benchmark: 16.00, note: "Lower facility costs" },
-      logistics: { cost: 12.60, benchmark: 8.00, note: "Ocean freight + customs" },
-      margin: { cost: 9.40, benchmark: 14.00, note: "Lower margin, competitive on unit price" },
-      totalCurrent: 145.00, totalTarget: 158.00
-    },
-    tco: {
-      unitPrice: 145.00,
-      qualityCost: 14.17,
-      qualityNote: "$340K warranty / 24K units = $14.17/unit. Defect rate: 1.8% (highest in portfolio)",
-      logisticsCost: 12.60,
-      logisticsNote: "Ocean freight from Guangzhou. 6-week transit. Tariff exposure.",
-      inventoryCost: 9.80,
-      inventoryNote: "45 days safety stock required due to lead time. 8% carrying cost.",
-      adminCost: 3.50,
-      adminNote: "Customs clearance, import documentation, extended receiving inspection",
-      tariffCost: 36.25,
-      tariffNote: "25% tariff effective Q3 2025. $145 × 25% = $36.25/unit",
-      totalTCO: 221.32,
-      benchmarkTCO: 188.00,
-      tcoGap: 33.32,
-      tcoGapPercent: "17.7%"
-    }
-  },
-  {
-    skuId: "SKU-4401", name: "Front Door Panel Assembly", supplier: "Precision Steel Corp",
-    currentUnitCost: 84.20, targetUnitCost: 78.60, annualVolume: 48000,
-    zbb: {
-      rawMaterials: [
-        { component: "Hot-rolled steel sheet", cost: 32.40, marketBenchmark: 29.80, delta: -2.60, note: "HRS prices down 5% QoQ" },
-        { component: "Zinc coating", cost: 6.80, marketBenchmark: 6.40, delta: -0.40, note: "Zinc stable" },
-        { component: "Adhesives & sealants", cost: 3.20, marketBenchmark: 3.20, delta: 0, note: "At benchmark" },
-        { component: "Fastener inserts", cost: 2.40, marketBenchmark: 2.40, delta: 0, note: "At benchmark" },
-      ],
-      labor: { cost: 16.80, benchmark: 15.60, note: "Detroit metro rates" },
-      overhead: { cost: 12.40, benchmark: 11.20, note: "Stamping press amortization" },
-      logistics: { cost: 4.80, benchmark: 4.80, note: "Local supplier" },
-      margin: { cost: 5.40, benchmark: 5.20, note: "6.4% margin, slightly above benchmark" },
-      totalCurrent: 84.20, totalTarget: 78.60
-    },
-    tco: {
-      unitPrice: 84.20,
-      qualityCost: 2.96,
-      qualityNote: "$142K warranty / 48K units = $2.96/unit. Defect rate: 0.4% (good)",
-      logisticsCost: 4.80,
-      logisticsNote: "Inbound from Detroit. Same-day delivery available.",
-      inventoryCost: 1.40,
-      inventoryNote: "5 days safety stock. Proximity enables JIT delivery.",
-      adminCost: 1.20,
-      adminNote: "Streamlined PO process, blanket order in place",
-      totalTCO: 94.56,
-      benchmarkTCO: 90.20,
-      tcoGap: 4.36,
-      tcoGapPercent: "4.8%"
-    }
-  }
+const defaultTriggers=[
+{id:"TRG-01",name:"Commodity price drop > 5%",type:"Commodity Changes",condition:"When any tracked commodity index drops more than 5% over a 30-day rolling window",action:"Surface opportunity in hopper with affected parts and TCO impact",enabled:true,lastTriggered:"Feb 5, 2026",timesTriggered:3},
+{id:"TRG-02",name:"Contract expiring within 120 days",type:"Contract Renewals",condition:"When any active supplier contract is within 120 days of expiration",action:"Surface renewal opportunity with market benchmarks and alternative suppliers",enabled:true,lastTriggered:"Jan 15, 2026",timesTriggered:2},
+{id:"TRG-03",name:"Supplier financial health decline",type:"Supply Chain Risks",condition:"When a supplier D&B score drops more than 10 points in a quarter",action:"Flag risk with alternative supplier recommendations",enabled:true,lastTriggered:"Feb 10, 2026",timesTriggered:1},
+{id:"TRG-04",name:"Tariff or trade policy change",type:"Supply Chain Risks",condition:"When new tariff announcements affect active supplier countries",action:"Calculate cost impact across affected SKUs and identify reshoring options",enabled:true,lastTriggered:"Jan 22, 2026",timesTriggered:1},
+{id:"TRG-05",name:"Quality defect rate exceeds 1.5%",type:"Supply Chain Risks",condition:"When a supplier rolling 90-day defect rate exceeds 1.5%",action:"Alert and surface alternative suppliers with quality comparison",enabled:true,lastTriggered:"Dec 8, 2025",timesTriggered:1},
+{id:"TRG-06",name:"Engineering spec change opportunity",type:"VAVE",condition:"When engineering teams flag material substitution or spec consolidation in PLM",action:"Generate cost impact analysis and surface in VAVE hopper",enabled:false,lastTriggered:null,timesTriggered:0}
 ];
 
-// ─── Query Processing (Search Page) ───────────────────────────
-const processQuery = (query) => {
-  const q = query.toLowerCase();
-  if ((q.includes("supplier") || q.includes("find")) && (q.includes("mississippi") || q.includes(" ms"))) {
-    const msSuppliers = suppliers.filter(s => s.location.includes("MS"));
-    return { type: "supplier_search", title: "Suppliers in Mississippi", summary: `Found ${msSuppliers.length} suppliers in Mississippi. Showing current and potential alternative suppliers.`, data: msSuppliers, sources: ["Enterprise Graph", "Supplier Database", "Market Intelligence"] };
-  }
-  if (q.includes("hvac") || q.includes("climate control")) {
-    const hvacSuppliers = suppliers.filter(s => s.categories.some(c => c.toLowerCase().includes("hvac") || c.toLowerCase().includes("climate")));
-    return { type: "supplier_search", title: "HVAC & Climate Control Suppliers", summary: `Found ${hvacSuppliers.length} suppliers for HVAC systems. Current supplier ThermoFlow Systems has a contract expiring March 2026. MidSouth HVAC Solutions is a qualified alternative with competitive pricing.`, data: hvacSuppliers, sources: ["Enterprise Graph", "Contracts DB", "Market Intelligence"] };
-  }
-  if (q.includes("warranty") && (q.includes("spend") || q.includes("cost"))) {
-    const skuMatch = q.match(/sku[- ]?(\w+)/i);
-    if (skuMatch) {
-      const sku = skus.find(s => s.id.toLowerCase().includes(skuMatch[1].toLowerCase()));
-      if (sku) return { type: "warranty_detail", title: `Warranty Spend: ${sku.id}`, summary: `${sku.name} (${sku.id}) has $${(sku.warrantySpend/1000).toFixed(0)}K in warranty spend over the last 12 months with a defect rate of ${sku.defectRate}. Supplied by ${sku.supplier}.`, data: sku, sources: ["Quality System", "Warranty Claims DB", "ERP"] };
-    }
-    const totalWarranty = skus.reduce((sum, s) => sum + s.warrantySpend, 0);
-    const sorted = [...skus].sort((a, b) => b.warrantySpend - a.warrantySpend);
-    return { type: "warranty_overview", title: "Warranty Spend Overview", summary: `Total warranty spend across tracked SKUs is $${(totalWarranty/1000000).toFixed(1)}M over the last 12 months. Highest: ${sorted[0].name} at $${(sorted[0].warrantySpend/1000).toFixed(0)}K.`, data: sorted, sources: ["Quality System", "Warranty Claims DB", "ERP"] };
-  }
-  if (q.includes("scorecard") || q.includes("performance")) {
-    const supplierMatch = suppliers.find(s => q.includes(s.name.toLowerCase().split(" ")[0].toLowerCase()));
-    if (supplierMatch) return { type: "scorecard", title: `Supplier Scorecard: ${supplierMatch.name}`, summary: `Quality: ${supplierMatch.qualityScore}/100. Delivery: ${supplierMatch.deliveryScore}/100. Cost: ${supplierMatch.costScore}/100. Financial health: ${supplierMatch.financialHealth}. Risk: ${supplierMatch.riskLevel}.`, data: supplierMatch, sources: ["Supplier Scorecard System", "Quality DB", "D&B Financial"] };
-    return { type: "scorecard_list", title: "Supplier Scorecards", summary: "Performance scorecards for all active suppliers, sorted by quality score.", data: suppliers.filter(s => !s.isAlternative).sort((a, b) => b.qualityScore - a.qualityScore), sources: ["Supplier Scorecard System", "Quality DB"] };
-  }
-  if (q.includes("opportunit") || q.includes("savings") || q.includes("cost reduction")) {
-    return { type: "opportunities", title: "Active Opportunities", summary: `${opportunities.length} opportunities with combined estimated impact of $${(opportunities.reduce((s,o)=>s+o.impact,0)/1000000).toFixed(2)}M.`, data: opportunities, sources: ["Procurement Intelligence Engine", "Market Data", "Contract Timelines"] };
-  }
-  if (q.includes("contract") && (q.includes("expir") || q.includes("renew"))) {
-    const expiring = suppliers.filter(s => s.contractExpiry).sort((a, b) => new Date(a.contractExpiry) - new Date(b.contractExpiry));
-    return { type: "contracts", title: "Upcoming Contract Renewals", summary: `${expiring.length} contracts with upcoming renewals. Nearest: ${expiring[0].name} on ${new Date(expiring[0].contractExpiry).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`, data: expiring, sources: ["Contract Lifecycle Management", "Enterprise Graph"] };
-  }
-  if (q.includes("risk") || q.includes("tariff") || q.includes("disrupt")) {
-    const riskSuppliers = suppliers.filter(s => s.riskLevel === "High" || s.riskLevel === "Medium");
-    return { type: "risk", title: "Supply Chain Risk Assessment", summary: `${riskSuppliers.length} suppliers flagged. Guangzhou Electronics highest priority due to tariff exposure.`, data: riskSuppliers, sources: ["Risk Intelligence Feed", "News Monitoring", "D&B Financial"] };
-  }
-  if (q.includes("spend") && !q.includes("warranty")) {
-    const totalSpend = suppliers.reduce((sum, s) => sum + s.annualSpend, 0);
-    return { type: "spend", title: "Spend Analysis", summary: `Total annual spend: $${(totalSpend/1000000).toFixed(1)}M. Largest: Precision Steel Corp at $${(suppliers[0].annualSpend/1000000).toFixed(1)}M (${((suppliers[0].annualSpend/totalSpend)*100).toFixed(0)}%).`, data: suppliers.filter(s => s.annualSpend > 0).sort((a, b) => b.annualSpend - a.annualSpend), sources: ["ERP", "Accounts Payable", "Enterprise Graph"] };
-  }
-  return { type: "general", title: "Search Results", summary: "Try asking about suppliers, parts, spend, warranty costs, scorecards, contracts, risks, or opportunities.", data: null, sources: [] };
-};
+const costModels=[
+{skuId:"SKU-3301",name:"Cabin HVAC Module",supplier:"ThermoFlow Systems",currentUnitCost:312.00,targetUnitCost:294.00,annualVolume:24000,
+zbb:{rawMaterials:[{component:"Copper tubing",cost:68.40,marketBenchmark:61.20,delta:-7.20,note:"Copper down 8%"},{component:"Aluminum fins",cost:42.00,marketBenchmark:41.50,delta:-0.50,note:"Flat"},{component:"Compressor",cost:84.00,marketBenchmark:79.00,delta:-5.00,note:"3 new suppliers"},{component:"Electronics",cost:31.20,marketBenchmark:30.00,delta:-1.20,note:"Stable"},{component:"Housing",cost:18.60,marketBenchmark:18.60,delta:0,note:"At benchmark"}],labor:{cost:28.80,benchmark:26.00,note:"SE US rates"},overhead:{cost:22.00,benchmark:20.70,note:"Tooling"},logistics:{cost:8.40,benchmark:8.40,note:"Regional"},margin:{cost:8.60,benchmark:8.60,note:"2.8%"},totalCurrent:312.00,totalTarget:294.00},
+tco:{unitPrice:312.00,qualityCost:37.08,qualityNote:"$890K warranty / 24K units",logisticsCost:8.40,logisticsNote:"2-day transit",inventoryCost:4.20,inventoryNote:"15 days safety stock",adminCost:2.10,adminNote:"Standard PO",totalTCO:363.78,benchmarkTCO:341.50,tcoGap:22.28,tcoGapPercent:"6.1%"}},
+{skuId:"SKU-5501",name:"Main Wiring Harness",supplier:"Guangzhou Electronics Co.",currentUnitCost:145.00,targetUnitCost:158.00,annualVolume:24000,
+zbb:{rawMaterials:[{component:"Copper wire",cost:38.50,marketBenchmark:35.20,delta:-3.30,note:"Copper down"},{component:"Connectors",cost:29.00,marketBenchmark:28.00,delta:-1.00,note:"Competitive"},{component:"Sleeving",cost:12.80,marketBenchmark:12.80,delta:0,note:"At benchmark"},{component:"Clips",cost:4.20,marketBenchmark:4.00,delta:-0.20,note:"Minor"},{component:"Labels",cost:2.10,marketBenchmark:2.10,delta:0,note:"At benchmark"}],labor:{cost:22.40,benchmark:38.00,note:"China advantage"},overhead:{cost:14.00,benchmark:16.00,note:"Lower facility"},logistics:{cost:12.60,benchmark:8.00,note:"Ocean freight"},margin:{cost:9.40,benchmark:14.00,note:"Lower margin"},totalCurrent:145.00,totalTarget:158.00},
+tco:{unitPrice:145.00,qualityCost:14.17,qualityNote:"1.8% defect rate",logisticsCost:12.60,logisticsNote:"6-week ocean",inventoryCost:9.80,inventoryNote:"45 days stock",adminCost:3.50,adminNote:"Customs",tariffCost:36.25,tariffNote:"25% tariff",totalTCO:221.32,benchmarkTCO:188.00,tcoGap:33.32,tcoGapPercent:"17.7%"}},
+{skuId:"SKU-4401",name:"Front Door Panel Assembly",supplier:"Precision Steel Corp",currentUnitCost:84.20,targetUnitCost:78.60,annualVolume:48000,
+zbb:{rawMaterials:[{component:"Hot-rolled steel",cost:32.40,marketBenchmark:29.80,delta:-2.60,note:"HRS down 5%"},{component:"Zinc coating",cost:6.80,marketBenchmark:6.40,delta:-0.40,note:"Stable"},{component:"Adhesives",cost:3.20,marketBenchmark:3.20,delta:0,note:"At benchmark"},{component:"Fastener inserts",cost:2.40,marketBenchmark:2.40,delta:0,note:"At benchmark"}],labor:{cost:16.80,benchmark:15.60,note:"Detroit"},overhead:{cost:12.40,benchmark:11.20,note:"Press"},logistics:{cost:4.80,benchmark:4.80,note:"Local"},margin:{cost:5.40,benchmark:5.20,note:"6.4%"},totalCurrent:84.20,totalTarget:78.60},
+tco:{unitPrice:84.20,qualityCost:2.96,qualityNote:"0.4% defect",logisticsCost:4.80,logisticsNote:"Same-day",inventoryCost:1.40,inventoryNote:"5 days JIT",adminCost:1.20,adminNote:"Blanket order",totalTCO:94.56,benchmarkTCO:90.20,tcoGap:4.36,tcoGapPercent:"4.8%"}}
+];
 
-// ─── Shared UI Components ──────────────────────────────────────
-const ScoreBar = ({ score, label }) => (
-  <div style={{ marginBottom: 10 }}>
-    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12, color: "#6B7280" }}>
-      <span>{label}</span>
-      <span style={{ fontWeight: 600, color: score >= 85 ? "#059669" : score >= 70 ? "#D97706" : "#DC2626" }}>{score}/100</span>
-    </div>
-    <div style={{ height: 6, borderRadius: 3, background: "#E5E7EB", overflow: "hidden" }}>
-      <div style={{ height: "100%", borderRadius: 3, width: `${score}%`, background: score >= 85 ? "#059669" : score >= 70 ? "#D97706" : "#DC2626", transition: "width 0.8s cubic-bezier(0.16, 1, 0.3, 1)" }} />
-    </div>
-  </div>
-);
+const Tag=({children,color="#E0E7FF",textColor="#3730A3"})=><span style={{display:"inline-block",padding:"2px 10px",borderRadius:100,fontSize:11,fontWeight:500,background:color,color:textColor,marginRight:6,marginBottom:4}}>{children}</span>;
+const RiskBadge=({level})=>{const c={Low:{bg:"#D1FAE5",t:"#065F46"},Medium:{bg:"#FEF3C7",t:"#92400E"},High:{bg:"#FEE2E2",t:"#991B1B"}}[level]||{bg:"#D1FAE5",t:"#065F46"};return <Tag color={c.bg} textColor={c.t}>{level} Risk</Tag>};
+const StatusBadge=({status})=>{const c={"Viewed":{bg:"#F3F4F6",t:"#6B7280"},"Investigating":{bg:"#FEF3C7",t:"#92400E"},"Under progress":{bg:"#DBEAFE",t:"#1E40AF"},"Completed":{bg:"#D1FAE5",t:"#065F46"}}[status]||{bg:"#F3F4F6",t:"#6B7280"};return <Tag color={c.bg} textColor={c.t}>{status}</Tag>};
+const SourcePill=({name})=><span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"3px 10px",borderRadius:100,fontSize:11,background:"#F3F4F6",color:"#6B7280",border:"1px solid #E5E7EB"}}><span style={{width:5,height:5,borderRadius:"50%",background:"#10B981"}}/>{name}</span>;
+const ScoreBar=({score,label})=><div style={{marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:4,fontSize:12,color:"#6B7280"}}><span>{label}</span><span style={{fontWeight:600,color:score>=85?"#059669":score>=70?"#D97706":"#DC2626"}}>{score}/100</span></div><div style={{height:6,borderRadius:3,background:"#E5E7EB",overflow:"hidden"}}><div style={{height:"100%",borderRadius:3,width:score+"%",background:score>=85?"#059669":score>=70?"#D97706":"#DC2626",transition:"width 0.8s ease"}}/></div></div>;
+const ClassIcon=({type})=>{const i={"Commodity Changes":"\u{1F4C9}","Contract Renewals":"\u{1F4CB}","Supply Chain Risks":"\u{26A0}\u{FE0F}","VAVE":"\u{1F527}"};return <span style={{fontSize:16}}>{i[type]||"\u{1F4CA}"}</span>};
 
-const Tag = ({ children, color = "#E0E7FF", textColor = "#3730A3" }) => (
-  <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 100, fontSize: 11, fontWeight: 500, background: color, color: textColor, marginRight: 6, marginBottom: 4 }}>{children}</span>
-);
+const SupplierCard=({supplier})=>(
+<div style={{background:"#FFF",borderRadius:12,padding:20,border:"1px solid #E5E7EB",marginBottom:12}} onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
+<div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><div><div style={{fontSize:15,fontWeight:600,marginBottom:4}}>{supplier.name}{supplier.isAlternative&&<span style={{marginLeft:8,padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:600,background:"#DBEAFE",color:"#1E40AF"}}>ALT</span>}</div><div style={{fontSize:13,color:"#6B7280"}}>{supplier.location}</div></div><RiskBadge level={supplier.riskLevel}/></div>
+<div style={{display:"flex",gap:4,marginBottom:14}}>{supplier.categories.map(c=><Tag key={c}>{c}</Tag>)}</div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:14}}><ScoreBar score={supplier.qualityScore} label="Quality"/><ScoreBar score={supplier.deliveryScore} label="Delivery"/><ScoreBar score={supplier.costScore} label="Cost"/></div>
+<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8,padding:12,background:"#F9FAFB",borderRadius:8,fontSize:12}}>
+{supplier.annualSpend>0&&<div><span style={{color:"#6B7280"}}>Spend</span><div style={{fontWeight:600}}>${(supplier.annualSpend/1e6).toFixed(1)}M</div></div>}
+<div><span style={{color:"#6B7280"}}>On-Time</span><div style={{fontWeight:600}}>{supplier.onTimeDelivery}</div></div>
+<div><span style={{color:"#6B7280"}}>Defects</span><div style={{fontWeight:600}}>{supplier.defectRate}</div></div>
+<div><span style={{color:"#6B7280"}}>Price 12m</span><div style={{fontWeight:600,color:supplier.priceChangeLast12m?.startsWith("+")?"#DC2626":"#059669"}}>{supplier.priceChangeLast12m}</div></div>
+</div>
+{supplier.riskNotes&&<div style={{marginTop:10,padding:"10px 14px",background:"#FEF2F2",borderRadius:8,borderLeft:"3px solid #EF4444",fontSize:12,color:"#991B1B"}}>{supplier.riskNotes}</div>}
+</div>);
 
-const RiskBadge = ({ level }) => {
-  const c = { Low: { bg: "#D1FAE5", text: "#065F46" }, Medium: { bg: "#FEF3C7", text: "#92400E" }, High: { bg: "#FEE2E2", text: "#991B1B" } }[level] || { bg: "#D1FAE5", text: "#065F46" };
-  return <Tag color={c.bg} textColor={c.text}>{level} Risk</Tag>;
-};
+const processQuery=(query)=>{const q=query.toLowerCase();
+if((q.includes("supplier")||q.includes("find"))&&(q.includes("mississippi")||q.includes(" ms"))){const d=suppliers.filter(s=>s.location.includes("MS"));return{type:"supplier_search",title:"Suppliers in Mississippi",summary:"Found "+d.length+" suppliers.",data:d,sources:["Enterprise Graph","Supplier DB"]};}
+if(q.includes("hvac")){const d=suppliers.filter(s=>s.categories.some(c=>c.includes("HVAC")));return{type:"supplier_search",title:"HVAC Suppliers",summary:"Found "+d.length+" HVAC suppliers.",data:d,sources:["Enterprise Graph"]};}
+if(q.includes("warranty")){const sorted=[...skus].sort((a,b)=>b.warrantySpend-a.warrantySpend);return{type:"warranty_overview",title:"Warranty Spend",summary:"Total: $"+(skus.reduce((s,x)=>s+x.warrantySpend,0)/1e6).toFixed(1)+"M",data:sorted,sources:["Quality System","ERP"]};}
+if(q.includes("scorecard")||q.includes("performance")){const m=suppliers.find(s=>q.includes(s.name.toLowerCase().split(" ")[0].toLowerCase()));if(m)return{type:"supplier_search",title:"Scorecard: "+m.name,summary:"Quality: "+m.qualityScore+". Delivery: "+m.deliveryScore+".",data:[m],sources:["Scorecard System"]};return{type:"supplier_search",title:"All Scorecards",summary:"Active suppliers by quality.",data:suppliers.filter(s=>!s.isAlternative).sort((a,b)=>b.qualityScore-a.qualityScore),sources:["Scorecard System"]};}
+if(q.includes("opportunit")||q.includes("savings"))return{type:"opportunities",title:"Opportunities",summary:opportunities.length+" opps. $"+(opportunities.reduce((s,o)=>s+o.impact,0)/1e6).toFixed(2)+"M pipeline.",data:opportunities,sources:["Intelligence Engine"]};
+if(q.includes("contract")&&(q.includes("expir")||q.includes("renew"))){const d=suppliers.filter(s=>s.contractExpiry).sort((a,b)=>new Date(a.contractExpiry)-new Date(b.contractExpiry));return{type:"contracts",title:"Contract Renewals",summary:d.length+" upcoming.",data:d,sources:["Contract CLM"]};}
+if(q.includes("risk")||q.includes("tariff"))return{type:"supplier_search",title:"Supply Chain Risks",summary:"Flagged suppliers.",data:suppliers.filter(s=>s.riskLevel==="High"||s.riskLevel==="Medium"),sources:["Risk Feed"]};
+if(q.includes("spend"))return{type:"spend",title:"Spend Analysis",summary:"Total: $"+(suppliers.reduce((s,x)=>s+x.annualSpend,0)/1e6).toFixed(1)+"M",data:suppliers.filter(s=>s.annualSpend>0).sort((a,b)=>b.annualSpend-a.annualSpend),sources:["ERP"]};
+return{type:"general",title:"Search",summary:"Try: suppliers, warranty, scorecards, opportunities, contracts, risks, spend.",data:null,sources:[]};};
 
-const SourcePill = ({ name }) => (
-  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 100, fontSize: 11, background: "#F3F4F6", color: "#6B7280", border: "1px solid #E5E7EB" }}>
-    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981" }} />{name}
-  </span>
-);
+const SearchResults=({result})=>{if(!result)return null;return(
+<div style={{animation:"fadeSlideIn 0.4s ease-out"}}>
+<div style={{marginBottom:20}}><div style={{fontSize:13,color:"#6B7280",marginBottom:16,lineHeight:1.6,padding:"14px 18px",background:"#F9FAFB",borderRadius:10,borderLeft:"3px solid #6366F1"}}>{result.summary}</div>
+{result.sources.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{result.sources.map(s=><SourcePill key={s} name={s}/>)}</div>}</div>
+{result.type==="supplier_search"&&result.data.map(s=><SupplierCard key={s.id} supplier={s}/>)}
+{result.type==="warranty_overview"&&<div style={{background:"#FFF",borderRadius:12,border:"1px solid #E5E7EB",overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:"#F9FAFB"}}>{["SKU","Part","Supplier","Warranty","Defect"].map(h=><th key={h} style={{padding:"10px 14px",textAlign:"left",fontWeight:600,fontSize:11,textTransform:"uppercase",borderBottom:"1px solid #E5E7EB"}}>{h}</th>)}</tr></thead><tbody>{result.data.map(s=><tr key={s.id} style={{borderBottom:"1px solid #F3F4F6"}}><td style={{padding:"10px 14px",fontWeight:600,color:"#3730A3",fontFamily:"monospace",fontSize:12}}>{s.id}</td><td style={{padding:"10px 14px"}}>{s.name}</td><td style={{padding:"10px 14px",color:"#6B7280"}}>{s.supplier}</td><td style={{padding:"10px 14px",fontWeight:600}}>${(s.warrantySpend/1e3).toFixed(0)}K</td><td style={{padding:"10px 14px"}}><span style={{color:parseFloat(s.defectRate)>1?"#DC2626":"#059669",fontWeight:600}}>{s.defectRate}</span></td></tr>)}</tbody></table></div>}
+{result.type==="opportunities"&&result.data.map(o=><div key={o.id} style={{background:"#FFF",borderRadius:12,padding:16,border:"1px solid #E5E7EB",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{flex:1}}><div style={{fontWeight:600,fontSize:14,marginBottom:4}}>{o.title}</div><div style={{fontSize:12,color:"#6B7280",marginBottom:8}}>{o.trigger}</div><div style={{display:"flex",gap:6}}><Tag>{o.classification}</Tag><StatusBadge status={o.status}/></div></div><div style={{textAlign:"right",marginLeft:20}}><div style={{fontSize:22,fontWeight:700,color:"#059669"}}>${(o.impact/1e3).toFixed(0)}K</div></div></div>)}
+{result.type==="contracts"&&result.data.map(s=><div key={s.id} style={{background:"#FFF",borderRadius:12,padding:16,border:"1px solid #E5E7EB",marginBottom:10,display:"flex",justifyContent:"space-between"}}><div><div style={{fontWeight:600}}>{s.name}</div></div><div style={{textAlign:"right",fontWeight:600}}>{new Date(s.contractExpiry).toLocaleDateString("en-US",{month:"long",year:"numeric"})}</div></div>)}
+{result.type==="spend"&&result.data.map(s=><div key={s.id} style={{background:"#FFF",borderRadius:12,padding:16,border:"1px solid #E5E7EB",marginBottom:10,display:"flex",justifyContent:"space-between"}}><div style={{fontWeight:600}}>{s.name}</div><div style={{fontSize:20,fontWeight:700}}>${(s.annualSpend/1e6).toFixed(1)}M</div></div>)}
+{result.type==="general"&&<div style={{background:"#F9FAFB",borderRadius:12,padding:24,textAlign:"center",color:"#6B7280"}}>Try: "Find HVAC supplier in Mississippi" or "Show warranty spend"</div>}
+</div>)};
 
-const SupplierCard = ({ supplier, compact }) => (
-  <div style={{ background: "#FFFFFF", borderRadius: 12, padding: compact ? 16 : 20, border: "1px solid #E5E7EB", marginBottom: 12, transition: "box-shadow 0.2s", cursor: "pointer" }}
-    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"}
-    onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: "#111827", marginBottom: 4 }}>
-          {supplier.name}
-          {supplier.isAlternative && <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "#DBEAFE", color: "#1E40AF", letterSpacing: "0.03em" }}>ALTERNATIVE</span>}
-        </div>
-        <div style={{ fontSize: 13, color: "#6B7280" }}>{supplier.location}</div>
-      </div>
-      <RiskBadge level={supplier.riskLevel} />
-    </div>
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 14 }}>{supplier.categories.map(c => <Tag key={c}>{c}</Tag>)}</div>
-    {!compact && (<>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
-        <ScoreBar score={supplier.qualityScore} label="Quality" />
-        <ScoreBar score={supplier.deliveryScore} label="Delivery" />
-        <ScoreBar score={supplier.costScore} label="Cost" />
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, padding: 12, background: "#F9FAFB", borderRadius: 8, fontSize: 12 }}>
-        {supplier.annualSpend > 0 && <div><span style={{ color: "#6B7280" }}>Annual Spend</span><div style={{ fontWeight: 600, color: "#111827" }}>${(supplier.annualSpend/1000000).toFixed(1)}M</div></div>}
-        <div><span style={{ color: "#6B7280" }}>On-Time Delivery</span><div style={{ fontWeight: 600 }}>{supplier.onTimeDelivery}</div></div>
-        <div><span style={{ color: "#6B7280" }}>Defect Rate</span><div style={{ fontWeight: 600 }}>{supplier.defectRate}</div></div>
-        <div><span style={{ color: "#6B7280" }}>Price Change (12m)</span><div style={{ fontWeight: 600, color: supplier.priceChangeLast12m?.startsWith("+") ? "#DC2626" : "#059669" }}>{supplier.priceChangeLast12m}</div></div>
-        {supplier.contractExpiry && <div><span style={{ color: "#6B7280" }}>Contract Expiry</span><div style={{ fontWeight: 600 }}>{new Date(supplier.contractExpiry).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</div></div>}
-        <div><span style={{ color: "#6B7280" }}>Financial Health</span><div style={{ fontWeight: 600 }}>{supplier.financialHealth}</div></div>
-      </div>
-      {supplier.riskNotes && <div style={{ marginTop: 10, padding: "10px 14px", background: "#FEF2F2", borderRadius: 8, borderLeft: "3px solid #EF4444", fontSize: 12, color: "#991B1B" }}>⚠ {supplier.riskNotes}</div>}
-      <div style={{ marginTop: 10, display: "flex", gap: 4, flexWrap: "wrap" }}>{supplier.certifications.map(c => <Tag key={c} color="#F0FDF4" textColor="#166534">{c}</Tag>)}</div>
-    </>)}
-  </div>
-);
+const EmailModal=({opp,onClose})=>{
+const affSkus=skus.filter(s=>opp.skusAffected.includes(s.id));
+const cd=opp.commodityData;const ti=opp.tcoImpact;
+const body="Dear "+opp.supplier+" Team,\n\nI am writing regarding pricing on the following parts:\n\n"+affSkus.map(s=>"  \u2022 "+s.id+" \u2014 "+s.name+" ($"+s.unitCost.toFixed(2)+"/unit, "+s.annualVolume.toLocaleString()+" units/yr)").join("\n")+"\n\n"+cd.commodity+" prices have declined significantly:\n  \u2022 Current: "+cd.priceNow+" "+cd.unit+" ("+cd.changePercent+" over past quarter)\n  \u2022 3 months ago: "+cd.price3mAgo+" "+cd.unit+"\n  \u2022 6 months ago: "+cd.price6mAgo+" "+cd.unit+"\n\nOur cost analysis indicates a target unit price of $"+ti.newTarget.toFixed(2)+" (currently $"+ti.currentTotal.toFixed(2)+"), reflecting the commodity deflation. This is a per-unit adjustment of $"+ti.savingsPerUnit.toFixed(2)+".\n\nWe value our partnership and would like to discuss this adjustment at your earliest convenience.\n\nBest regards,\n[Procurement Manager]\n[Company Name]";
+const [copied,setCopied]=useState(false);
+return(
+<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,animation:"fadeSlideIn 0.2s ease-out"}}>
+<div style={{background:"#FFF",borderRadius:16,width:"90%",maxWidth:700,maxHeight:"90vh",overflow:"auto",boxShadow:"0 24px 48px rgba(0,0,0,0.15)"}}>
+<div style={{padding:"20px 24px",borderBottom:"1px solid #E5E7EB",display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:16,fontWeight:700}}>Draft Email to Supplier</div><div style={{fontSize:12,color:"#6B7280",marginTop:2}}>Auto-generated from cost analysis</div></div><button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9CA3AF"}}>\u2715</button></div>
+<div style={{padding:"20px 24px"}}>
+<div style={{marginBottom:16}}><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>To</div><div style={{padding:"8px 12px",background:"#F9FAFB",borderRadius:8,fontSize:14,border:"1px solid #E5E7EB"}}>{opp.supplier} \u2014 Sales Team</div></div>
+<div style={{marginBottom:16}}><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Subject</div><div style={{padding:"8px 12px",background:"#F9FAFB",borderRadius:8,fontSize:14,border:"1px solid #E5E7EB"}}>Pricing Adjustment \u2014 {cd.commodity} Deflation ({affSkus.map(s=>s.id).join(", ")})</div></div>
+<div style={{marginBottom:16}}><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Body</div><pre style={{padding:16,background:"#F9FAFB",borderRadius:8,fontSize:13,lineHeight:1.7,border:"1px solid #E5E7EB",whiteSpace:"pre-wrap",fontFamily:"'DM Sans',system-ui",color:"#374151"}}>{body}</pre></div>
+<div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+<button onClick={onClose} style={{padding:"10px 20px",borderRadius:10,border:"1px solid #E5E7EB",background:"#FFF",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>Cancel</button>
+<button onClick={()=>{navigator.clipboard.writeText(body);setCopied(true);setTimeout(()=>setCopied(false),2000)}} style={{padding:"10px 20px",borderRadius:10,border:"none",background:copied?"#059669":"#4F46E5",color:"#FFF",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{copied?"Copied!":"Copy to Clipboard"}</button>
+</div></div></div></div>)};
 
-// ─── Search Result Renderer ────────────────────────────────────
-const SearchResultView = ({ result }) => {
-  if (!result) return null;
-  return (
-    <div style={{ animation: "fadeSlideIn 0.4s ease-out" }}>
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 16, lineHeight: 1.6, padding: "14px 18px", background: "#F9FAFB", borderRadius: 10, borderLeft: "3px solid #6366F1" }}>{result.summary}</div>
-        {result.sources.length > 0 && <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{result.sources.map(s => <SourcePill key={s} name={s} />)}</div>}
-      </div>
-      {result.type === "supplier_search" && result.data.map(s => <SupplierCard key={s.id} supplier={s} />)}
-      {result.type === "scorecard" && <SupplierCard supplier={result.data} />}
-      {result.type === "scorecard_list" && result.data.map(s => <SupplierCard key={s.id} supplier={s} />)}
-      {result.type === "warranty_overview" && (
-        <div style={{ background: "#FFF", borderRadius: 12, border: "1px solid #E5E7EB", overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead><tr style={{ background: "#F9FAFB" }}>
-              {["SKU", "Part Name", "Supplier", "Warranty Spend", "Defect Rate", "Volume/yr"].map(h => <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontWeight: 600, color: "#374151", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: "1px solid #E5E7EB" }}>{h}</th>)}
-            </tr></thead>
-            <tbody>{result.data.map((sku, i) => (
-              <tr key={sku.id} style={{ borderBottom: i < result.data.length - 1 ? "1px solid #F3F4F6" : "none" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#F9FAFB"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                <td style={{ padding: "10px 14px", fontWeight: 600, color: "#3730A3", fontFamily: "monospace", fontSize: 12 }}>{sku.id}</td>
-                <td style={{ padding: "10px 14px", color: "#111827" }}>{sku.name}</td>
-                <td style={{ padding: "10px 14px", color: "#6B7280" }}>{sku.supplier}</td>
-                <td style={{ padding: "10px 14px", fontWeight: 600 }}>${(sku.warrantySpend/1000).toFixed(0)}K</td>
-                <td style={{ padding: "10px 14px" }}><span style={{ color: parseFloat(sku.defectRate) > 1 ? "#DC2626" : parseFloat(sku.defectRate) > 0.5 ? "#D97706" : "#059669", fontWeight: 600 }}>{sku.defectRate}</span></td>
-                <td style={{ padding: "10px 14px", color: "#6B7280" }}>{sku.annualVolume.toLocaleString()}</td>
-              </tr>
-            ))}</tbody>
-          </table>
-        </div>
-      )}
-      {result.type === "warranty_detail" && (
-        <div style={{ background: "#FFF", borderRadius: 12, padding: 20, border: "1px solid #E5E7EB" }}>
-          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>{result.data.name}</div>
-          <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 16 }}>{result.data.id} · {result.data.supplier}</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
-            {[{ label: "Warranty Spend", value: `$${(result.data.warrantySpend/1000).toFixed(0)}K`, color: "#DC2626" }, { label: "Defect Rate", value: result.data.defectRate }, { label: "Unit Cost", value: `$${result.data.unitCost.toFixed(2)}` }, { label: "Annual Volume", value: result.data.annualVolume.toLocaleString() }].map(m => (
-              <div key={m.label} style={{ padding: 14, background: "#F9FAFB", borderRadius: 8 }}><div style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>{m.label}</div><div style={{ fontSize: 20, fontWeight: 700, color: m.color || "#111827" }}>{m.value}</div></div>
-            ))}
-          </div>
-        </div>
-      )}
-      {result.type === "opportunities" && result.data.map(o => (
-        <div key={o.id} style={{ background: "#FFF", borderRadius: 12, padding: 16, border: "1px solid #E5E7EB", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", transition: "box-shadow 0.2s" }}
-          onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{o.title}</div><div style={{ fontSize: 12, color: "#6B7280", marginBottom: 8 }}>{o.trigger}</div><div style={{ display: "flex", gap: 6 }}><Tag>{o.category}</Tag><Tag color={o.confidence === "High" ? "#D1FAE5" : "#FEF3C7"} textColor={o.confidence === "High" ? "#065F46" : "#92400E"}>{o.confidence} Confidence</Tag></div></div>
-          <div style={{ textAlign: "right", marginLeft: 20 }}><div style={{ fontSize: 22, fontWeight: 700, color: "#059669" }}>${(o.impact/1000).toFixed(0)}K</div><div style={{ fontSize: 11, color: "#6B7280" }}>est. annual</div></div>
-        </div>
-      ))}
-      {result.type === "contracts" && result.data.map(s => { const d = Math.ceil((new Date(s.contractExpiry) - new Date()) / 864e5); const u = d < 180; return (
-        <div key={s.id} style={{ background: "#FFF", borderRadius: 12, padding: 16, border: "1px solid #E5E7EB", borderLeft: u ? "3px solid #F59E0B" : "3px solid #E5E7EB", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div><div style={{ fontWeight: 600, fontSize: 14 }}>{s.name}</div><div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{s.categories.join(", ")}</div></div>
-          <div style={{ textAlign: "right" }}><div style={{ fontSize: 13, fontWeight: 600, color: u ? "#D97706" : "#111827" }}>{new Date(s.contractExpiry).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div><div style={{ fontSize: 11, color: u ? "#D97706" : "#6B7280" }}>{d > 0 ? `${d} days` : "Expired"}</div></div>
-        </div>
-      ); })}
-      {result.type === "risk" && result.data.map(s => <SupplierCard key={s.id} supplier={s} />)}
-      {result.type === "spend" && result.data.map(s => (
-        <div key={s.id} style={{ background: "#FFF", borderRadius: 12, padding: 16, border: "1px solid #E5E7EB", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div><div style={{ fontWeight: 600, fontSize: 14 }}>{s.name}</div><div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{s.categories.join(", ")}</div></div>
-          <div style={{ textAlign: "right" }}><div style={{ fontSize: 20, fontWeight: 700 }}>${(s.annualSpend/1000000).toFixed(1)}M</div><div style={{ fontSize: 11, color: s.priceChangeLast12m?.startsWith("+") ? "#DC2626" : "#059669" }}>{s.priceChangeLast12m} vs last year</div></div>
-        </div>
-      ))}
-      {result.type === "general" && (
-        <div style={{ background: "#F9FAFB", borderRadius: 12, padding: 24, textAlign: "center" }}>
-          <div style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.8 }}>
-            Try one of these queries:
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16, alignItems: "center" }}>
-              {["Find me a supplier for HVAC in Mississippi", "Show me warranty spend for SKU-3301", "Show me the scorecard for Precision Steel", "What are my active opportunities?", "Which contracts are expiring soon?"].map(q => (
-                <span key={q} style={{ padding: "6px 14px", background: "#E0E7FF", color: "#3730A3", borderRadius: 100, fontSize: 12, cursor: "pointer" }}>{q}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+const CommodityDetail=({opp,onBack})=>{
+const[showEmail,setShowEmail]=useState(false);
+const affSkus=skus.filter(s=>opp.skusAffected.includes(s.id));
+const cd=opp.commodityData;const ti=opp.tcoImpact;
+return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+{showEmail&&<EmailModal opp={opp} onClose={()=>setShowEmail(false)}/>}
+<button onClick={onBack} style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",color:"#6366F1",fontSize:13,fontWeight:600,cursor:"pointer",marginBottom:20,padding:0,fontFamily:"inherit"}}><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>Back to Hopper</button>
+<div style={{background:"#FFF",borderRadius:14,border:"1px solid #E5E7EB",overflow:"hidden"}}>
+<div style={{padding:"24px 28px",borderBottom:"1px solid #F3F4F6"}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+<div style={{flex:1}}><div style={{display:"flex",gap:8,marginBottom:10}}><Tag>Commodity Changes</Tag><Tag color={opp.confidence==="High"?"#D1FAE5":"#FEF3C7"} textColor={opp.confidence==="High"?"#065F46":"#92400E"}>{opp.confidence}</Tag><StatusBadge status={opp.status}/></div>
+<h2 style={{fontSize:20,fontWeight:700,marginBottom:6}}>{opp.title}</h2>
+<div style={{fontSize:13,color:"#6B7280"}}>Trigger: {opp.trigger}</div></div>
+<div style={{textAlign:"right",padding:"12px 20px",background:"#ECFDF5",borderRadius:12,marginLeft:24}}><div style={{fontSize:28,fontWeight:800,color:"#059669"}}>${(opp.impact/1e3).toFixed(0)}K</div><div style={{fontSize:11,color:"#065F46"}}>est. annual savings</div></div>
+</div></div>
+<div style={{padding:"24px 28px"}}>
+<div style={{marginBottom:28}}><h3 style={{fontSize:13,fontWeight:700,color:"#374151",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Analysis</h3><p style={{fontSize:14,lineHeight:1.7}}>{opp.description}</p></div>
 
-// ─── App Page: Opportunity Hopper ──────────────────────────────
-const OpportunityDetail = ({ opp, onBack }) => {
-  const affectedSkus = skus.filter(s => opp.skusAffected.includes(s.id));
-  return (
-    <div style={{ animation: "fadeSlideIn 0.3s ease-out" }}>
-      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#6366F1", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 20, padding: 0, fontFamily: "inherit" }}>
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        Back to Hopper
-      </button>
+<div style={{marginBottom:28,background:"#F0F9FF",borderRadius:12,padding:20,borderLeft:"3px solid #3B82F6"}}>
+<h3 style={{fontSize:12,fontWeight:700,color:"#1E40AF",textTransform:"uppercase",marginBottom:14}}>Commodity Price: {cd.commodity}</h3>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:16,marginBottom:14}}>
+<div style={{padding:14,background:"#FFF",borderRadius:8,textAlign:"center"}}><div style={{fontSize:11,color:"#6B7280"}}>Current</div><div style={{fontSize:22,fontWeight:800,color:"#059669"}}>{cd.priceNow}<span style={{fontSize:12,fontWeight:400}}> {cd.unit}</span></div></div>
+<div style={{padding:14,background:"#FFF",borderRadius:8,textAlign:"center"}}><div style={{fontSize:11,color:"#6B7280"}}>3m Ago</div><div style={{fontSize:22,fontWeight:800,color:"#6B7280"}}>{cd.price3mAgo}<span style={{fontSize:12,fontWeight:400}}> {cd.unit}</span></div></div>
+<div style={{padding:14,background:"#FFF",borderRadius:8,textAlign:"center"}}><div style={{fontSize:11,color:"#6B7280"}}>6m Ago</div><div style={{fontSize:22,fontWeight:800,color:"#6B7280"}}>{cd.price6mAgo}<span style={{fontSize:12,fontWeight:400}}> {cd.unit}</span></div></div>
+<div style={{padding:14,background:"#FFF",borderRadius:8,textAlign:"center"}}><div style={{fontSize:11,color:"#6B7280"}}>Change</div><div style={{fontSize:22,fontWeight:800,color:"#059669"}}>{cd.changePercent}</div></div>
+</div><div style={{fontSize:13,color:"#1E3A5F"}}>{cd.trend}</div></div>
 
-      <div style={{ background: "#FFF", borderRadius: 14, border: "1px solid #E5E7EB", overflow: "hidden" }}>
-        {/* Header */}
-        <div style={{ padding: "24px 28px", borderBottom: "1px solid #F3F4F6" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <Tag>{opp.category}</Tag>
-                <Tag color={opp.confidence === "High" ? "#D1FAE5" : "#FEF3C7"} textColor={opp.confidence === "High" ? "#065F46" : "#92400E"}>{opp.confidence} Confidence</Tag>
-                <Tag color={opp.ease === "Easy" ? "#D1FAE5" : opp.ease === "Medium" ? "#FEF3C7" : "#FEE2E2"} textColor={opp.ease === "Easy" ? "#065F46" : opp.ease === "Medium" ? "#92400E" : "#991B1B"}>{opp.ease} Execution</Tag>
-                <Tag color={opp.status === "Ready to act" ? "#DBEAFE" : opp.status === "In review" ? "#E0E7FF" : "#F3F4F6"} textColor={opp.status === "Ready to act" ? "#1E40AF" : "#3730A3"}>{opp.status}</Tag>
-              </div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", marginBottom: 6, letterSpacing: "-0.02em" }}>{opp.title}</h2>
-              <div style={{ fontSize: 13, color: "#6B7280" }}>Triggered by: {opp.trigger} · Identified {new Date(opp.createdDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
-            </div>
-            <div style={{ textAlign: "right", marginLeft: 24, padding: "12px 20px", background: "#ECFDF5", borderRadius: 12 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "#059669", letterSpacing: "-0.03em" }}>${(opp.impact/1000).toFixed(0)}K</div>
-              <div style={{ fontSize: 11, color: "#065F46", fontWeight: 500 }}>estimated annual savings</div>
-            </div>
-          </div>
-        </div>
+<div style={{marginBottom:28}}>
+<h3 style={{fontSize:13,fontWeight:700,color:"#374151",textTransform:"uppercase",marginBottom:14}}>Cost Impact</h3>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+<div style={{background:"#F9FAFB",borderRadius:12,padding:20,border:"1px solid #E5E7EB"}}>
+<div style={{fontSize:12,fontWeight:700,color:"#6B7280",textTransform:"uppercase",marginBottom:12}}>Unit Price Impact</div>
+{[{l:"Current material cost",v:"$"+ti.currentMatCost},{l:"Market benchmark",v:"$"+ti.newMatBenchmark,c:"#059669"},{l:"Savings per unit",v:"-$"+ti.savingsPerUnit.toFixed(2),c:"#059669",bold:true},{l:"Current unit price",v:"$"+ti.currentTotal.toFixed(2)},{l:"Target unit price",v:"$"+ti.newTarget.toFixed(2),c:"#059669",bold:true}].map((r,i)=>
+<div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #E5E7EB",fontSize:13}}><span style={{color:"#6B7280"}}>{r.l}</span><span style={{fontWeight:r.bold?700:600,color:r.c||"#111827"}}>{r.v}</span></div>)}
+</div>
+<div style={{background:"#F9FAFB",borderRadius:12,padding:20,border:"1px solid #E5E7EB"}}>
+<div style={{fontSize:12,fontWeight:700,color:"#6B7280",textTransform:"uppercase",marginBottom:12}}>TCO Breakdown</div>
+{[{l:"New unit price",v:ti.newTarget},{l:"Quality/warranty",v:ti.qualityCost},{l:"Logistics",v:ti.logisticsTco},{l:"Inventory",v:ti.inventoryTco},{l:"Admin",v:ti.adminTco}].map((r,i)=>
+<div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #E5E7EB",fontSize:13}}><span style={{color:"#6B7280"}}>{r.l}</span><span style={{fontWeight:600}}>${r.v.toFixed(2)}</span></div>)}
+<div style={{display:"flex",justifyContent:"space-between",padding:"10px 0",fontSize:14}}><span style={{fontWeight:700,color:"#9A3412"}}>New TCO</span><span style={{fontWeight:800,color:"#D97706",fontSize:18}}>${ti.newTco.toFixed(2)}</span></div>
+<div style={{fontSize:12,color:"#059669"}}>TCO savings: ${(ti.currentTco-ti.newTco).toFixed(2)}/unit</div>
+</div></div></div>
 
-        {/* Body */}
-        <div style={{ padding: "24px 28px" }}>
-          {/* Analysis */}
-          <div style={{ marginBottom: 28 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Analysis</h3>
-            <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7 }}>{opp.description}</p>
-          </div>
+<div style={{marginBottom:28}}><h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",marginBottom:10}}>Affected Parts</h3>
+{affSkus.map(s=><div key={s.id} style={{display:"flex",justifyContent:"space-between",padding:"12px 16px",background:"#F9FAFB",borderRadius:8,marginBottom:6,fontSize:13}}><div><span style={{fontWeight:600,color:"#3730A3",fontFamily:"monospace",fontSize:12,marginRight:10}}>{s.id}</span>{s.name}</div><div style={{color:"#6B7280"}}>${s.unitCost.toFixed(2)} | {s.annualVolume.toLocaleString()}/yr</div></div>)}</div>
 
-          {/* Market Context */}
-          <div style={{ marginBottom: 28, padding: "16px 20px", background: "#F0F9FF", borderRadius: 10, borderLeft: "3px solid #3B82F6" }}>
-            <h3 style={{ fontSize: 12, fontWeight: 700, color: "#1E40AF", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Market Context</h3>
-            <p style={{ fontSize: 13, color: "#1E3A5F", lineHeight: 1.6, margin: 0 }}>{opp.marketContext}</p>
-          </div>
+<div style={{marginBottom:28,padding:"16px 20px",background:"#F0F9FF",borderRadius:10,borderLeft:"3px solid #3B82F6"}}><h3 style={{fontSize:12,fontWeight:700,color:"#1E40AF",textTransform:"uppercase",marginBottom:8}}>Market Context</h3><p style={{fontSize:13,color:"#1E3A5F",lineHeight:1.6,margin:0}}>{opp.marketContext}</p></div>
 
-          {/* Affected SKUs */}
-          <div style={{ marginBottom: 28 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Affected Parts</h3>
-            <div style={{ display: "grid", gap: 8 }}>
-              {affectedSkus.map(sku => (
-                <div key={sku.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "#F9FAFB", borderRadius: 8 }}>
-                  <div><span style={{ fontWeight: 600, color: "#3730A3", fontFamily: "monospace", fontSize: 12, marginRight: 10 }}>{sku.id}</span><span style={{ fontSize: 13, color: "#111827" }}>{sku.name}</span></div>
-                  <div style={{ display: "flex", gap: 20, fontSize: 12 }}>
-                    <span style={{ color: "#6B7280" }}>Unit cost: <strong style={{ color: "#111827" }}>${sku.unitCost.toFixed(2)}</strong></span>
-                    <span style={{ color: "#6B7280" }}>Volume: <strong style={{ color: "#111827" }}>{sku.annualVolume.toLocaleString()}/yr</strong></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+<div style={{marginBottom:20}}><h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",marginBottom:12}}>Recommended Actions</h3>
+<div style={{display:"grid",gap:8}}>
+<div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#FFF",borderRadius:10,border:"1px solid #C7D2FE"}}><div style={{width:28,height:28,borderRadius:8,background:"#4F46E5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#FFF",flexShrink:0}}>1</div><span style={{fontSize:13,flex:1}}>Draft pricing adjustment email to {opp.supplier}</span><button onClick={()=>setShowEmail(true)} style={{padding:"8px 18px",borderRadius:8,border:"none",background:"#4F46E5",color:"#FFF",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>Draft Email</button></div>
+<div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#FFF",borderRadius:10,border:"1px solid #E5E7EB",opacity:0.6}}><div style={{width:28,height:28,borderRadius:8,background:"#E5E7EB",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#6B7280",flexShrink:0}}>2</div><span style={{fontSize:13,color:"#6B7280",flex:1}}>Launch competitive RFP via Coupa</span><span style={{padding:"6px 14px",borderRadius:8,background:"#F3F4F6",color:"#9CA3AF",fontSize:12}}>Coming soon</span></div>
+<div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#FFF",borderRadius:10,border:"1px solid #E5E7EB",opacity:0.6}}><div style={{width:28,height:28,borderRadius:8,background:"#E5E7EB",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#6B7280",flexShrink:0}}>3</div><span style={{fontSize:13,color:"#6B7280",flex:1}}>Add to backlog with comments</span><span style={{padding:"6px 14px",borderRadius:8,background:"#F3F4F6",color:"#9CA3AF",fontSize:12}}>Coming soon</span></div>
+</div></div>
+<div style={{display:"flex",gap:6,paddingTop:16,borderTop:"1px solid #F3F4F6"}}><span style={{fontSize:11,color:"#9CA3AF"}}>Source:</span><SourcePill name={opp.source}/></div>
+</div></div></div>)};
 
-          {/* Recommended Actions */}
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Recommended Actions</h3>
-            <div style={{ display: "grid", gap: 8 }}>
-              {opp.recommendedActions.map((action, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#FFF", borderRadius: 10, border: "1px solid #E5E7EB" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#4F46E5", flexShrink: 0 }}>{i + 1}</div>
-                  <span style={{ fontSize: 13, color: "#111827" }}>{action}</span>
-                  <button style={{ marginLeft: "auto", padding: "6px 14px", borderRadius: 8, border: "1px solid #C7D2FE", background: "#EEF2FF", color: "#4F46E5", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>Execute</button>
-                </div>
-              ))}
-            </div>
-          </div>
+const GenericDetail=({opp,onBack})=>{const affSkus=skus.filter(s=>opp.skusAffected.includes(s.id));return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+<button onClick={onBack} style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",color:"#6366F1",fontSize:13,fontWeight:600,cursor:"pointer",marginBottom:20,padding:0,fontFamily:"inherit"}}><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>Back</button>
+<div style={{background:"#FFF",borderRadius:14,border:"1px solid #E5E7EB",overflow:"hidden"}}>
+<div style={{padding:"24px 28px",borderBottom:"1px solid #F3F4F6"}}><div style={{display:"flex",justifyContent:"space-between"}}><div style={{flex:1}}><div style={{display:"flex",gap:8,marginBottom:10}}><Tag>{opp.classification}</Tag><StatusBadge status={opp.status}/></div><h2 style={{fontSize:20,fontWeight:700,marginBottom:6}}>{opp.title}</h2><div style={{fontSize:13,color:"#6B7280"}}>Trigger: {opp.trigger}</div></div><div style={{textAlign:"right",padding:"12px 20px",background:"#ECFDF5",borderRadius:12,marginLeft:24}}><div style={{fontSize:28,fontWeight:800,color:"#059669"}}>${(opp.impact/1e3).toFixed(0)}K</div><div style={{fontSize:11,color:"#065F46"}}>est. annual</div></div></div></div>
+<div style={{padding:"24px 28px"}}><div style={{marginBottom:24}}><h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",marginBottom:10}}>Analysis</h3><p style={{fontSize:14,lineHeight:1.7}}>{opp.description}</p></div>
+{opp.marketContext&&<div style={{marginBottom:24,padding:"16px 20px",background:"#F0F9FF",borderRadius:10,borderLeft:"3px solid #3B82F6"}}><h3 style={{fontSize:12,fontWeight:700,color:"#1E40AF",textTransform:"uppercase",marginBottom:8}}>Market Context</h3><p style={{fontSize:13,color:"#1E3A5F",lineHeight:1.6,margin:0}}>{opp.marketContext}</p></div>}
+<div><h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",marginBottom:10}}>Affected Parts</h3>{affSkus.map(s=><div key={s.id} style={{display:"flex",justifyContent:"space-between",padding:"10px 14px",background:"#F9FAFB",borderRadius:8,marginBottom:6,fontSize:13}}><div><span style={{fontWeight:600,color:"#3730A3",fontFamily:"monospace",fontSize:12,marginRight:10}}>{s.id}</span>{s.name}</div><div style={{color:"#6B7280"}}>${s.unitCost.toFixed(2)} | {s.annualVolume.toLocaleString()}/yr</div></div>)}</div>
+</div></div></div>)};
 
-          {/* Source */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 16, borderTop: "1px solid #F3F4F6" }}>
-            <span style={{ fontSize: 11, color: "#9CA3AF", marginRight: 4, paddingTop: 3 }}>Intelligence source:</span>
-            <SourcePill name={opp.source} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+const HopperTab=()=>{
+const[sel,setSel]=useState(null);const[cls,setCls]=useState("All");const[sts,setSts]=useState("All");
+const classes=["All","Commodity Changes","Contract Renewals","Supply Chain Risks","VAVE"];
+const statuses=["All","Viewed","Investigating","Under progress","Completed"];
+const filtered=opportunities.filter(o=>(cls==="All"||o.classification===cls)&&(sts==="All"||o.status===sts));
+const total=opportunities.reduce((s,o)=>s+o.impact,0);
+if(sel){if(sel.classification==="Commodity Changes"&&sel.commodityData)return<CommodityDetail opp={sel} onBack={()=>setSel(null)}/>;return<GenericDetail opp={sel} onBack={()=>setSel(null)}/>;}
+return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:14,marginBottom:24}}>
+{[{l:"Total Pipeline",v:"$"+(total/1e6).toFixed(2)+"M",s:opportunities.length+" opps",c:"#059669"},
+{l:"Commodity",v:opportunities.filter(o=>o.classification==="Commodity Changes").length+"",s:"$"+(opportunities.filter(o=>o.classification==="Commodity Changes").reduce((s,o)=>s+o.impact,0)/1e3).toFixed(0)+"K",c:"#2563EB"},
+{l:"Contracts",v:opportunities.filter(o=>o.classification==="Contract Renewals").length+"",s:"$"+(opportunities.filter(o=>o.classification==="Contract Renewals").reduce((s,o)=>s+o.impact,0)/1e3).toFixed(0)+"K",c:"#7C3AED"},
+{l:"VAVE",v:opportunities.filter(o=>o.classification==="VAVE").length+"",s:"$"+(opportunities.filter(o=>o.classification==="VAVE").reduce((s,o)=>s+o.impact,0)/1e3).toFixed(0)+"K",c:"#D97706"}
+].map(c=><div key={c.l} style={{background:"#FFF",borderRadius:12,padding:"18px 20px",border:"1px solid #E5E7EB"}}><div style={{fontSize:11,color:"#6B7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>{c.l}</div><div style={{fontSize:26,fontWeight:800,color:c.c}}>{c.v}</div><div style={{fontSize:12,color:"#9CA3AF",marginTop:2}}>{c.s}</div></div>)}</div>
+<div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>{classes.map(c=><button key={c} onClick={()=>setCls(c)} style={{padding:"6px 14px",borderRadius:8,border:"1px solid",fontSize:12,fontWeight:500,cursor:"pointer",fontFamily:"inherit",background:cls===c?"#4F46E5":"#FFF",color:cls===c?"#FFF":"#374151",borderColor:cls===c?"#4F46E5":"#E5E7EB"}}>{c==="All"?"All Types":c}</button>)}</div>
+<div style={{display:"flex",gap:6,marginBottom:20}}>{statuses.map(s=><button key={s} onClick={()=>setSts(s)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid #E5E7EB",fontSize:11,cursor:"pointer",fontFamily:"inherit",background:sts===s?"#374151":"#FFF",color:sts===s?"#FFF":"#6B7280"}}>{s==="All"?"All Status":s}</button>)}</div>
+{filtered.length===0&&<div style={{textAlign:"center",padding:40,color:"#9CA3AF"}}>No matches.</div>}
+{filtered.map(opp=>(
+<div key={opp.id} onClick={()=>setSel(opp)} style={{background:"#FFF",borderRadius:12,padding:"18px 22px",border:"1px solid #E5E7EB",marginBottom:10,cursor:"pointer",transition:"all 0.15s"}} onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.06)";e.currentTarget.style.borderColor="#C7D2FE"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none";e.currentTarget.style.borderColor="#E5E7EB"}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+<div style={{flex:1}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><ClassIcon type={opp.classification}/><span style={{fontWeight:600,fontSize:15}}>{opp.title}</span></div>
+<div style={{fontSize:12,color:"#6B7280",marginBottom:10}}>{opp.trigger} \u00B7 {opp.supplier}</div>
+<div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Tag>{opp.classification}</Tag><StatusBadge status={opp.status}/><Tag color={opp.confidence==="High"?"#D1FAE5":"#FEF3C7"} textColor={opp.confidence==="High"?"#065F46":"#92400E"}>{opp.confidence}</Tag></div></div>
+<div style={{textAlign:"right",marginLeft:20}}><div style={{fontSize:24,fontWeight:800,color:"#059669"}}>${(opp.impact/1e3).toFixed(0)}K</div><div style={{fontSize:11,color:"#6B7280"}}>est. annual</div></div>
+</div></div>))}
+</div>)};
 
-const HopperTab = () => {
-  const [selectedOpp, setSelectedOpp] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("All");
-  const totalImpact = opportunities.reduce((s, o) => s + o.impact, 0);
-  const filtered = filterStatus === "All" ? opportunities : opportunities.filter(o => o.status === filterStatus);
+const CostTab=()=>{
+const[sel,setSel]=useState(null);const[sq,setSq]=useState("");
+const filtered=sq?costModels.filter(m=>m.name.toLowerCase().includes(sq.toLowerCase())||m.skuId.toLowerCase().includes(sq.toLowerCase())):costModels;
+if(sel)return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+<button onClick={()=>setSel(null)} style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",color:"#6366F1",fontSize:13,fontWeight:600,cursor:"pointer",marginBottom:20,padding:0,fontFamily:"inherit"}}><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>Back</button>
+<div style={{background:"#FFF",borderRadius:14,border:"1px solid #E5E7EB",padding:"24px 28px",marginBottom:16}}>
+<div style={{display:"flex",justifyContent:"space-between"}}><div><div style={{fontSize:12,color:"#6B7280",fontFamily:"monospace",marginBottom:4}}>{sel.skuId}</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:6}}>{sel.name}</h2><div style={{fontSize:13,color:"#6B7280"}}>{sel.supplier} \u00B7 {sel.annualVolume.toLocaleString()}/yr</div></div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,textAlign:"center"}}>
+<div style={{padding:"12px 20px",background:"#F9FAFB",borderRadius:10}}><div style={{fontSize:11,color:"#6B7280",marginBottom:4}}>Current</div><div style={{fontSize:22,fontWeight:800}}>${sel.currentUnitCost.toFixed(2)}</div></div>
+<div style={{padding:"12px 20px",background:"#ECFDF5",borderRadius:10}}><div style={{fontSize:11,color:"#065F46",marginBottom:4}}>ZBB Target</div><div style={{fontSize:22,fontWeight:800,color:"#059669"}}>${sel.targetUnitCost.toFixed(2)}</div></div>
+<div style={{padding:"12px 20px",background:"#EEF2FF",borderRadius:10}}><div style={{fontSize:11,color:"#3730A3",marginBottom:4}}>Annual</div><div style={{fontSize:22,fontWeight:800,color:"#4F46E5"}}>${((sel.currentUnitCost-sel.targetUnitCost)*sel.annualVolume/1e3).toFixed(0)}K</div></div>
+</div></div></div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+<div style={{background:"#FFF",borderRadius:14,border:"1px solid #E5E7EB",overflow:"hidden"}}>
+<div style={{padding:"18px 22px",borderBottom:"1px solid #F3F4F6",display:"flex",justifyContent:"space-between"}}><h3 style={{fontSize:14,fontWeight:700,margin:0}}>Zero-Based Cost</h3><Tag color="#EEF2FF" textColor="#4F46E5">ZBB</Tag></div>
+{sel.zbb.rawMaterials.map((m,i)=><div key={i} style={{display:"grid",gridTemplateColumns:"1fr 65px 65px 55px",gap:6,padding:"8px 22px",borderBottom:"1px solid #F9FAFB",fontSize:13}}><div><div>{m.component}</div><div style={{fontSize:11,color:"#9CA3AF"}}>{m.note}</div></div><div style={{textAlign:"right",color:"#6B7280"}}>${m.cost.toFixed(2)}</div><div style={{textAlign:"right",color:"#059669"}}>${m.marketBenchmark.toFixed(2)}</div><div style={{textAlign:"right",fontWeight:600,color:m.delta?"#DC2626":"#9CA3AF"}}>{m.delta?"-$"+Math.abs(m.delta).toFixed(2):"\u2014"}</div></div>)}
+{[{l:"Labor",...sel.zbb.labor},{l:"Overhead",...sel.zbb.overhead},{l:"Logistics",...sel.zbb.logistics},{l:"Margin",...sel.zbb.margin}].map((r,i)=><div key={i} style={{display:"grid",gridTemplateColumns:"1fr 65px 65px 55px",gap:6,padding:"8px 22px",borderBottom:"1px solid #F9FAFB",fontSize:13}}><div>{r.l}</div><div style={{textAlign:"right",color:"#6B7280"}}>${r.cost.toFixed(2)}</div><div style={{textAlign:"right",color:"#059669"}}>${r.benchmark.toFixed(2)}</div><div style={{textAlign:"right",fontWeight:600,color:r.cost!==r.benchmark?"#DC2626":"#9CA3AF"}}>{r.cost!==r.benchmark?"-$"+Math.abs(r.cost-r.benchmark).toFixed(2):"\u2014"}</div></div>)}
+<div style={{display:"grid",gridTemplateColumns:"1fr 65px 65px 55px",gap:6,padding:"12px 22px",background:"#F0FDF4",fontWeight:700,fontSize:13}}><div style={{color:"#065F46"}}>TOTAL</div><div style={{textAlign:"right"}}>${sel.zbb.totalCurrent.toFixed(2)}</div><div style={{textAlign:"right",color:"#059669"}}>${sel.zbb.totalTarget.toFixed(2)}</div><div style={{textAlign:"right",color:"#059669"}}>-${(sel.zbb.totalCurrent-sel.zbb.totalTarget).toFixed(2)}</div></div>
+</div>
+<div style={{background:"#FFF",borderRadius:14,border:"1px solid #E5E7EB",overflow:"hidden"}}>
+<div style={{padding:"18px 22px",borderBottom:"1px solid #F3F4F6",display:"flex",justifyContent:"space-between"}}><h3 style={{fontSize:14,fontWeight:700,margin:0}}>Total Cost of Ownership</h3><Tag color="#FEF3C7" textColor="#92400E">TCO</Tag></div>
+{[{l:"Unit Price",v:sel.tco.unitPrice,n:"Contract price"},{l:"Quality",v:sel.tco.qualityCost,n:sel.tco.qualityNote},{l:"Logistics",v:sel.tco.logisticsCost,n:sel.tco.logisticsNote},{l:"Inventory",v:sel.tco.inventoryCost,n:sel.tco.inventoryNote},{l:"Admin",v:sel.tco.adminCost,n:sel.tco.adminNote},...(sel.tco.tariffCost?[{l:"Tariff",v:sel.tco.tariffCost,n:sel.tco.tariffNote,r:true}]:[])].map((r,i)=><div key={i} style={{padding:"12px 22px",borderBottom:"1px solid #F9FAFB"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:13,color:r.r?"#DC2626":"#111827"}}>{r.l}</span><span style={{fontSize:14,fontWeight:700,color:r.r?"#DC2626":"#111827"}}>${r.v.toFixed(2)}</span></div><div style={{fontSize:11,color:"#9CA3AF"}}>{r.n}</div></div>)}
+<div style={{padding:"14px 22px",background:"#FFF7ED",borderTop:"1px solid #FDBA74"}}><div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontWeight:700,color:"#9A3412"}}>Total TCO</span><span style={{fontSize:20,fontWeight:800,color:"#9A3412"}}>${sel.tco.totalTCO.toFixed(2)}</span></div><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginTop:4}}><span style={{color:"#C2410C"}}>Benchmark: ${sel.tco.benchmarkTCO.toFixed(2)}</span><span style={{fontWeight:700,color:"#DC2626"}}>Gap: {sel.tco.tcoGapPercent}</span></div></div>
+</div></div></div>);
+return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+<div style={{background:"#FFF",borderRadius:12,padding:"6px 6px 6px 16px",display:"flex",alignItems:"center",gap:10,border:"1px solid #E5E7EB",marginBottom:20}}><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" strokeLinecap="round"/></svg><input value={sq} onChange={e=>setSq(e.target.value)} placeholder="Search part, SKU, or supplier..." style={{flex:1,border:"none",outline:"none",fontSize:14,background:"transparent",padding:"10px 0",fontFamily:"inherit"}}/></div>
+{filtered.map(m=>{const s=m.currentUnitCost-m.targetUnitCost;const neg=s<0;return(
+<div key={m.skuId} onClick={()=>setSel(m)} style={{background:"#FFF",borderRadius:12,padding:"20px 24px",border:"1px solid #E5E7EB",marginBottom:12,cursor:"pointer",transition:"all 0.15s"}} onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.06)"} onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
+<div style={{display:"flex",justifyContent:"space-between"}}><div style={{flex:1}}><div style={{display:"flex",gap:10,marginBottom:6}}><span style={{fontFamily:"monospace",fontSize:12,color:"#6366F1",fontWeight:600}}>{m.skuId}</span><span style={{fontSize:16,fontWeight:600}}>{m.name}</span></div><div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>{m.supplier}</div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:16}}><div><div style={{fontSize:11,color:"#6B7280"}}>Current</div><div style={{fontSize:16,fontWeight:700}}>${m.currentUnitCost.toFixed(2)}</div></div><div><div style={{fontSize:11,color:"#6B7280"}}>ZBB</div><div style={{fontSize:16,fontWeight:700,color:neg?"#DC2626":"#059669"}}>${m.targetUnitCost.toFixed(2)}</div></div><div><div style={{fontSize:11,color:"#6B7280"}}>Gap</div><div style={{fontSize:16,fontWeight:700,color:neg?"#DC2626":"#059669"}}>{neg?"+":"-"}${Math.abs(s).toFixed(2)}</div></div><div><div style={{fontSize:11,color:"#6B7280"}}>TCO Gap</div><div style={{fontSize:16,fontWeight:700,color:"#D97706"}}>{m.tco.tcoGapPercent}</div></div></div>
+</div><div style={{textAlign:"right",marginLeft:20,padding:"12px 18px",background:neg?"#FEF2F2":"#ECFDF5",borderRadius:12}}><div style={{fontSize:22,fontWeight:800,color:neg?"#DC2626":"#059669"}}>{neg?"-":""}${Math.abs(s*m.annualVolume/1e3).toFixed(0)}K</div><div style={{fontSize:11,color:neg?"#991B1B":"#065F46"}}>{neg?"cost increase":"savings"}</div></div></div></div>)})}
+</div>)};
 
-  if (selectedOpp) return <OpportunityDetail opp={selectedOpp} onBack={() => setSelectedOpp(null)} />;
+const TriggersTab=()=>{
+const[triggers,setTriggers]=useState(defaultTriggers);const[showNew,setShowNew]=useState(false);const[nt,setNt]=useState({name:"",type:"Commodity Changes",condition:"",action:""});
+const toggle=(id)=>setTriggers(p=>p.map(t=>t.id===id?{...t,enabled:!t.enabled}:t));
+return(
+<div style={{animation:"fadeSlideIn 0.3s ease-out"}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+<div><h2 style={{fontSize:18,fontWeight:700,marginBottom:4}}>Triggers</h2><p style={{fontSize:13,color:"#6B7280"}}>Set conditions that automatically surface opportunities in your hopper.</p></div>
+<button onClick={()=>setShowNew(!showNew)} style={{padding:"10px 20px",borderRadius:10,border:"none",background:"#4F46E5",color:"#FFF",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{showNew?"Cancel":"+ New Trigger"}</button></div>
+{showNew&&<div style={{background:"#FFF",borderRadius:14,border:"2px solid #C7D2FE",padding:24,marginBottom:20,animation:"fadeSlideIn 0.2s ease-out"}}>
+<h3 style={{fontSize:14,fontWeight:700,marginBottom:16}}>Create New Trigger</h3>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}}>
+<div><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Name</div><input value={nt.name} onChange={e=>setNt({...nt,name:e.target.value})} placeholder="e.g., Aluminum price drop > 8%" style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/></div>
+<div><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Type</div><select value={nt.type} onChange={e=>setNt({...nt,type:e.target.value})} style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",background:"#FFF",outline:"none",boxSizing:"border-box"}}>{["Commodity Changes","Contract Renewals","Supply Chain Risks","VAVE"].map(t=><option key={t} value={t}>{t}</option>)}</select></div></div>
+<div style={{marginBottom:16}}><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Condition</div><input value={nt.condition} onChange={e=>setNt({...nt,condition:e.target.value})} placeholder="When..." style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/></div>
+<div style={{marginBottom:20}}><div style={{fontSize:12,color:"#6B7280",marginBottom:4}}>Action</div><input value={nt.action} onChange={e=>setNt({...nt,action:e.target.value})} placeholder="Then..." style={{width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/></div>
+<button onClick={()=>{if(nt.name&&nt.condition){setTriggers(p=>[...p,{...nt,id:"TRG-"+(p.length+1),enabled:true,lastTriggered:null,timesTriggered:0}]);setNt({name:"",type:"Commodity Changes",condition:"",action:""});setShowNew(false)}}} style={{padding:"10px 24px",borderRadius:10,border:"none",background:"#059669",color:"#FFF",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>Create Trigger</button>
+</div>}
+{triggers.map(t=>(
+<div key={t.id} style={{background:"#FFF",borderRadius:12,padding:"18px 22px",border:"1px solid #E5E7EB",marginBottom:10,opacity:t.enabled?1:0.6}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+<div style={{flex:1}}>
+<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}><ClassIcon type={t.type}/><span style={{fontWeight:600,fontSize:15}}>{t.name}</span><Tag>{t.type}</Tag></div>
+<div style={{fontSize:13,marginBottom:6,lineHeight:1.5}}><strong style={{color:"#6B7280",fontWeight:500}}>When:</strong> {t.condition}</div>
+<div style={{fontSize:13,marginBottom:8,lineHeight:1.5}}><strong style={{color:"#6B7280",fontWeight:500}}>Then:</strong> {t.action}</div>
+<div style={{display:"flex",gap:16,fontSize:12,color:"#9CA3AF"}}>{t.lastTriggered&&<span>Last: {t.lastTriggered}</span>}{t.timesTriggered>0&&<span>{t.timesTriggered}x triggered</span>}</div>
+</div>
+<div onClick={()=>toggle(t.id)} style={{width:44,height:24,borderRadius:12,background:t.enabled?"#059669":"#D1D5DB",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0,marginTop:4}}>
+<div style={{width:20,height:20,borderRadius:10,background:"#FFF",position:"absolute",top:2,left:t.enabled?22:2,transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/></div>
+</div></div>))}
+</div>)};
 
-  return (
-    <div style={{ animation: "fadeSlideIn 0.3s ease-out" }}>
-      {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
-        {[
-          { label: "Total Pipeline", value: `$${(totalImpact/1000000).toFixed(2)}M`, sub: `${opportunities.length} opportunities`, color: "#059669" },
-          { label: "Ready to Act", value: opportunities.filter(o => o.status === "Ready to act").length.toString(), sub: `$${(opportunities.filter(o=>o.status==="Ready to act").reduce((s,o)=>s+o.impact,0)/1000).toFixed(0)}K impact`, color: "#2563EB" },
-          { label: "High Confidence", value: opportunities.filter(o => o.confidence === "High").length.toString(), sub: "opportunities", color: "#7C3AED" },
-          { label: "Avg. Impact", value: `$${(totalImpact/opportunities.length/1000).toFixed(0)}K`, sub: "per opportunity", color: "#D97706" }
-        ].map(c => (
-          <div key={c.label} style={{ background: "#FFF", borderRadius: 12, padding: "18px 20px", border: "1px solid #E5E7EB" }}>
-            <div style={{ fontSize: 11, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{c.label}</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: c.color, letterSpacing: "-0.03em" }}>{c.value}</div>
-            <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>{c.sub}</div>
-          </div>
-        ))}
-      </div>
+function App(){
+const[page,setPage]=useState("search");const[tab,setTab]=useState("hopper");const[query,setQuery]=useState("");const[result,setResult]=useState(null);const[busy,setBusy]=useState(false);const inputRef=useRef(null);
+const search=(q)=>{const s=q||query;if(!s.trim())return;setBusy(true);setResult(null);setTimeout(()=>{setResult(processQuery(s));setBusy(false)},500)};
+useEffect(()=>{if(page==="search"&&inputRef.current)inputRef.current.focus()},[page]);
+const sugg=["Find HVAC supplier in Mississippi","Show warranty spend","Active opportunities","Scorecard for Precision Steel","Expiring contracts","Supply chain risks"];
+return(
+<div style={{minHeight:"100vh",background:"#F3F4F6",fontFamily:"'DM Sans','Segoe UI',system-ui,sans-serif"}}>
+<div style={{background:"#FFF",borderBottom:"1px solid #E5E7EB"}}>
+<div style={{maxWidth:960,margin:"0 auto",padding:"0 24px"}}>
+<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",height:56}}>
+<div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,#6366F1,#4F46E5)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#FFF",fontWeight:700,fontSize:14}}>G</span></div><span style={{fontWeight:700,fontSize:16}}>Glean</span><span style={{color:"#D1D5DB",margin:"0 4px"}}> \u00B7 </span><span style={{fontSize:14,color:"#6B7280"}}>Procurement Intelligence</span></div>
+<span style={{padding:"4px 12px",background:"#F0FDF4",color:"#166534",borderRadius:100,fontSize:11,fontWeight:600}}>MVP Prototype</span></div>
+<div style={{display:"flex"}}>{[{id:"search",l:"Search"},{id:"app",l:"Procurement App"}].map(t=><button key={t.id} onClick={()=>{setPage(t.id);if(t.id==="search"){setResult(null);setQuery("")}}} style={{padding:"10px 20px",background:"none",border:"none",borderBottom:page===t.id?"2px solid #4F46E5":"2px solid transparent",color:page===t.id?"#4F46E5":"#6B7280",fontWeight:page===t.id?600:400,fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>{t.l}</button>)}</div>
+</div></div>
+<div style={{maxWidth:960,margin:"0 auto",padding:"32px 24px"}}>
+{page==="search"&&<>
+{!result&&!busy&&<div style={{textAlign:"center",marginBottom:40,animation:"fadeSlideIn 0.5s ease-out"}}><h1 style={{fontSize:28,fontWeight:700,marginBottom:8}}>What do you need to know?</h1><p style={{fontSize:15,color:"#6B7280"}}>Ask about suppliers, parts, spend, risks, or opportunities.</p></div>}
+<div style={{background:"#FFF",borderRadius:16,padding:"6px 6px 6px 20px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",marginBottom:24,position:"sticky",top:12,zIndex:10}}>
+<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" strokeLinecap="round"/></svg>
+<input ref={inputRef} value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Ask anything about your procurement data..." style={{flex:1,border:"none",outline:"none",fontSize:15,background:"transparent",padding:"12px 0",fontFamily:"inherit"}}/>
+<button onClick={()=>search()} style={{padding:"10px 20px",borderRadius:12,border:"none",background:query.trim()?"linear-gradient(135deg,#6366F1,#4F46E5)":"#E5E7EB",color:query.trim()?"#FFF":"#9CA3AF",fontWeight:600,fontSize:13,cursor:query.trim()?"pointer":"default",fontFamily:"inherit"}}>Search</button></div>
+{!result&&!busy&&<div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center",marginBottom:32}}>{sugg.map(s=><button key={s} onClick={()=>{setQuery(s);search(s)}} style={{padding:"8px 16px",borderRadius:100,border:"1px solid #E5E7EB",background:"#FFF",color:"#374151",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>{s}</button>)}</div>}
+{busy&&<div style={{textAlign:"center",padding:60}}><div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:16}}>{[0,1,2].map(i=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:"#6366F1",animation:"pulse 1.2s "+i*0.15+"s infinite"}}/>)}</div><div style={{fontSize:14,color:"#6B7280"}}>Searching...</div></div>}
+{result&&<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}><h2 style={{fontSize:18,fontWeight:700}}>{result.title}</h2><button onClick={()=>{setResult(null);setQuery("")}} style={{padding:"6px 14px",borderRadius:8,border:"1px solid #E5E7EB",background:"#FFF",color:"#6B7280",fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>New search</button></div><SearchResults result={result}/></div>}
+{!result&&!busy&&<div style={{textAlign:"center",marginTop:60}}><div style={{fontSize:11,textTransform:"uppercase",letterSpacing:"0.08em",color:"#9CA3AF",marginBottom:12,fontWeight:600}}>Connected sources</div><div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>{["SAP ERP","Coupa","Teamcenter PLM","Quality System","D&B","Commodity Indices"].map(s=><span key={s} style={{padding:"6px 14px",borderRadius:8,background:"#FFF",border:"1px solid #E5E7EB",fontSize:12,color:"#6B7280",display:"flex",alignItems:"center",gap:6}}><span style={{width:6,height:6,borderRadius:"50%",background:"#10B981"}}/>{s}</span>)}</div></div>}
+</>}
+{page==="app"&&<>
+<div style={{display:"flex",gap:8,marginBottom:24}}>{[{id:"hopper",l:"Opportunity Hopper",i:"\u{1F4A1}"},{id:"cost",l:"Cost Management",i:"\u{1F4D0}"},{id:"triggers",l:"Triggers",i:"\u26A1"}].map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"10px 22px",borderRadius:10,border:"1px solid",background:tab===t.id?"#4F46E5":"#FFF",color:tab===t.id?"#FFF":"#374151",borderColor:tab===t.id?"#4F46E5":"#E5E7EB",fontWeight:600,fontSize:14,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:8}}><span>{t.i}</span>{t.l}</button>)}</div>
+{tab==="hopper"&&<HopperTab/>}{tab==="cost"&&<CostTab/>}{tab==="triggers"&&<TriggersTab/>}
+</>}
+</div></div>)}
 
-      {/* Filter */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
-        {["All", "Ready to act", "In review", "Investigating"].map(f => (
-          <button key={f} onClick={() => setFilterStatus(f)} style={{
-            padding: "6px 14px", borderRadius: 8, border: "1px solid", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
-            background: filterStatus === f ? "#4F46E5" : "#FFF", color: filterStatus === f ? "#FFF" : "#374151", borderColor: filterStatus === f ? "#4F46E5" : "#E5E7EB"
-          }}>{f}</button>
-        ))}
-      </div>
-
-      {/* Opportunity List */}
-      {filtered.map(opp => (
-        <div key={opp.id} onClick={() => setSelectedOpp(opp)} style={{ background: "#FFF", borderRadius: 12, padding: "18px 22px", border: "1px solid #E5E7EB", marginBottom: 10, cursor: "pointer", transition: "all 0.15s" }}
-          onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; e.currentTarget.style.borderColor = "#C7D2FE"; }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#E5E7EB"; }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 15, color: "#111827", marginBottom: 6 }}>{opp.title}</div>
-              <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 10 }}>{opp.trigger}</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <Tag>{opp.category}</Tag>
-                <Tag color={opp.confidence === "High" ? "#D1FAE5" : "#FEF3C7"} textColor={opp.confidence === "High" ? "#065F46" : "#92400E"}>{opp.confidence} Confidence</Tag>
-                <Tag color={opp.ease === "Easy" ? "#D1FAE5" : opp.ease === "Medium" ? "#FEF3C7" : "#FEE2E2"} textColor={opp.ease === "Easy" ? "#065F46" : opp.ease === "Medium" ? "#92400E" : "#991B1B"}>{opp.ease}</Tag>
-                <Tag color={opp.status === "Ready to act" ? "#DBEAFE" : "#F3F4F6"} textColor={opp.status === "Ready to act" ? "#1E40AF" : "#6B7280"}>{opp.status}</Tag>
-              </div>
-            </div>
-            <div style={{ textAlign: "right", marginLeft: 20 }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#059669" }}>${(opp.impact/1000).toFixed(0)}K</div>
-              <div style={{ fontSize: 11, color: "#6B7280" }}>est. annual</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// ─── App Page: Cost Management ─────────────────────────────────
-const CostModelDetail = ({ model, onBack }) => {
-  const zbb = model.zbb;
-  const tco = model.tco;
-  const materialTotal = zbb.rawMaterials.reduce((s, m) => s + m.cost, 0);
-  const materialBenchmark = zbb.rawMaterials.reduce((s, m) => s + m.marketBenchmark, 0);
-  const totalSavingsPerUnit = model.currentUnitCost - model.targetUnitCost;
-  const totalSavingsAnnual = totalSavingsPerUnit * model.annualVolume;
-
-  return (
-    <div style={{ animation: "fadeSlideIn 0.3s ease-out" }}>
-      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#6366F1", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 20, padding: 0, fontFamily: "inherit" }}>
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        Back to Cost Management
-      </button>
-
-      {/* Header */}
-      <div style={{ background: "#FFF", borderRadius: 14, border: "1px solid #E5E7EB", padding: "24px 28px", marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <div style={{ fontSize: 12, color: "#6B7280", fontFamily: "monospace", marginBottom: 4 }}>{model.skuId}</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", marginBottom: 6, letterSpacing: "-0.02em" }}>{model.name}</h2>
-            <div style={{ fontSize: 13, color: "#6B7280" }}>Supplier: {model.supplier} · Volume: {model.annualVolume.toLocaleString()}/yr</div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, textAlign: "center" }}>
-            <div style={{ padding: "12px 20px", background: "#F9FAFB", borderRadius: 10 }}><div style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>Current</div><div style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>${model.currentUnitCost.toFixed(2)}</div></div>
-            <div style={{ padding: "12px 20px", background: "#ECFDF5", borderRadius: 10 }}><div style={{ fontSize: 11, color: "#065F46", marginBottom: 4 }}>Target (ZBB)</div><div style={{ fontSize: 22, fontWeight: 800, color: "#059669" }}>${model.targetUnitCost.toFixed(2)}</div></div>
-            <div style={{ padding: "12px 20px", background: "#EEF2FF", borderRadius: 10 }}><div style={{ fontSize: 11, color: "#3730A3", marginBottom: 4 }}>Annual Savings</div><div style={{ fontSize: 22, fontWeight: 800, color: "#4F46E5" }}>${(totalSavingsAnnual/1000).toFixed(0)}K</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        {/* ZBB Breakdown */}
-        <div style={{ background: "#FFF", borderRadius: 14, border: "1px solid #E5E7EB", overflow: "hidden" }}>
-          <div style={{ padding: "18px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }}>Zero-Based Cost Breakdown</h3>
-            <Tag color="#EEF2FF" textColor="#4F46E5">ZBB</Tag>
-          </div>
-          <div style={{ padding: "0" }}>
-            {/* Raw Materials */}
-            <div style={{ padding: "14px 22px", borderBottom: "1px solid #F3F4F6", background: "#F9FAFB" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.06em" }}>Raw Materials</div>
-            </div>
-            {zbb.rawMaterials.map((m, i) => {
-              const hasDelta = m.delta !== 0;
-              return (
-                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 60px", gap: 8, padding: "10px 22px", borderBottom: "1px solid #F9FAFB", alignItems: "center", fontSize: 13 }}>
-                  <div>
-                    <div style={{ color: "#111827" }}>{m.component}</div>
-                    <div style={{ fontSize: 11, color: "#9CA3AF" }}>{m.note}</div>
-                  </div>
-                  <div style={{ textAlign: "right", color: "#6B7280" }}>${m.cost.toFixed(2)}</div>
-                  <div style={{ textAlign: "right", color: "#059669", fontWeight: 500 }}>${m.marketBenchmark.toFixed(2)}</div>
-                  <div style={{ textAlign: "right", fontWeight: 600, color: hasDelta ? "#DC2626" : "#9CA3AF" }}>{hasDelta ? `-$${Math.abs(m.delta).toFixed(2)}` : "—"}</div>
-                </div>
-              );
-            })}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 60px", gap: 8, padding: "10px 22px", borderBottom: "1px solid #E5E7EB", background: "#F9FAFB", fontSize: 12, fontWeight: 600 }}>
-              <div style={{ color: "#374151" }}>Materials subtotal</div>
-              <div style={{ textAlign: "right" }}>${materialTotal.toFixed(2)}</div>
-              <div style={{ textAlign: "right", color: "#059669" }}>${materialBenchmark.toFixed(2)}</div>
-              <div style={{ textAlign: "right", color: "#DC2626" }}>-${(materialTotal - materialBenchmark).toFixed(2)}</div>
-            </div>
-
-            {/* Other costs */}
-            {[
-              { label: "Labor", ...zbb.labor },
-              { label: "Overhead", ...zbb.overhead },
-              { label: "Logistics", ...zbb.logistics },
-              { label: "Supplier Margin", ...zbb.margin }
-            ].map((item, i) => (
-              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 60px", gap: 8, padding: "10px 22px", borderBottom: "1px solid #F9FAFB", alignItems: "center", fontSize: 13 }}>
-                <div><div style={{ color: "#111827" }}>{item.label}</div><div style={{ fontSize: 11, color: "#9CA3AF" }}>{item.note}</div></div>
-                <div style={{ textAlign: "right", color: "#6B7280" }}>${item.cost.toFixed(2)}</div>
-                <div style={{ textAlign: "right", color: "#059669" }}>${item.benchmark.toFixed(2)}</div>
-                <div style={{ textAlign: "right", fontWeight: 600, color: item.cost !== item.benchmark ? "#DC2626" : "#9CA3AF" }}>{item.cost !== item.benchmark ? `-$${(item.cost - item.benchmark).toFixed(2)}` : "—"}</div>
-              </div>
-            ))}
-
-            {/* Total */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 60px", gap: 8, padding: "14px 22px", background: "#F0FDF4", fontSize: 13, fontWeight: 700 }}>
-              <div style={{ color: "#065F46" }}>TOTAL</div>
-              <div style={{ textAlign: "right", color: "#374151" }}>${zbb.totalCurrent.toFixed(2)}</div>
-              <div style={{ textAlign: "right", color: "#059669" }}>${zbb.totalTarget.toFixed(2)}</div>
-              <div style={{ textAlign: "right", color: "#059669" }}>-${(zbb.totalCurrent - zbb.totalTarget).toFixed(2)}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* TCO Breakdown */}
-        <div style={{ background: "#FFF", borderRadius: 14, border: "1px solid #E5E7EB", overflow: "hidden" }}>
-          <div style={{ padding: "18px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }}>Total Cost of Ownership</h3>
-            <Tag color="#FEF3C7" textColor="#92400E">TCO</Tag>
-          </div>
-          <div style={{ padding: 0 }}>
-            {[
-              { label: "Unit Price", value: tco.unitPrice, note: "Contract price per unit", pct: ((tco.unitPrice/tco.totalTCO)*100).toFixed(0) },
-              { label: "Quality Cost", value: tco.qualityCost, note: tco.qualityNote, pct: ((tco.qualityCost/tco.totalTCO)*100).toFixed(0) },
-              { label: "Logistics", value: tco.logisticsCost, note: tco.logisticsNote, pct: ((tco.logisticsCost/tco.totalTCO)*100).toFixed(0) },
-              { label: "Inventory Carrying", value: tco.inventoryCost, note: tco.inventoryNote, pct: ((tco.inventoryCost/tco.totalTCO)*100).toFixed(0) },
-              { label: "Admin & Processing", value: tco.adminCost, note: tco.adminNote, pct: ((tco.adminCost/tco.totalTCO)*100).toFixed(0) },
-              ...(tco.tariffCost ? [{ label: "Tariff Exposure", value: tco.tariffCost, note: tco.tariffNote, pct: ((tco.tariffCost/tco.totalTCO)*100).toFixed(0), isRisk: true }] : [])
-            ].map((item, i) => (
-              <div key={i} style={{ padding: "14px 22px", borderBottom: "1px solid #F9FAFB" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 13, color: item.isRisk ? "#DC2626" : "#111827", fontWeight: 500 }}>{item.label}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: item.isRisk ? "#DC2626" : "#111827" }}>${item.value.toFixed(2)}</span>
-                </div>
-                <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 6 }}>{item.note}</div>
-                <div style={{ height: 4, borderRadius: 2, background: "#F3F4F6", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${item.pct}%`, background: item.isRisk ? "#EF4444" : "#6366F1", borderRadius: 2, transition: "width 0.6s ease" }} />
-                </div>
-              </div>
-            ))}
-
-            {/* TCO Total */}
-            <div style={{ padding: "16px 22px", background: "#FFF7ED", borderTop: "1px solid #FDBA74" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#9A3412" }}>Total TCO</span>
-                <span style={{ fontSize: 20, fontWeight: 800, color: "#9A3412" }}>${tco.totalTCO.toFixed(2)}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                <span style={{ color: "#C2410C" }}>Market benchmark: ${tco.benchmarkTCO.toFixed(2)}</span>
-                <span style={{ fontWeight: 700, color: "#DC2626" }}>Gap: {tco.tcoGapPercent} (${tco.tcoGap.toFixed(2)}/unit)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CostManagementTab = () => {
-  const [selectedModel, setSelectedModel] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const filtered = searchQuery ? costModels.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()) || m.skuId.toLowerCase().includes(searchQuery.toLowerCase()) || m.supplier.toLowerCase().includes(searchQuery.toLowerCase())) : costModels;
-
-  if (selectedModel) return <CostModelDetail model={selectedModel} onBack={() => setSelectedModel(null)} />;
-
-  return (
-    <div style={{ animation: "fadeSlideIn 0.3s ease-out" }}>
-      {/* Search */}
-      <div style={{ background: "#FFF", borderRadius: 12, padding: "6px 6px 6px 16px", display: "flex", alignItems: "center", gap: 10, border: "1px solid #E5E7EB", marginBottom: 20 }}>
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" strokeLinecap="round"/></svg>
-        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by part name, SKU, or supplier..." style={{ flex: 1, border: "none", outline: "none", fontSize: 14, color: "#111827", background: "transparent", padding: "10px 0", fontFamily: "inherit" }} />
-      </div>
-
-      {/* Cost Model Cards */}
-      {filtered.map(model => {
-        const savingsPerUnit = model.currentUnitCost - model.targetUnitCost;
-        const savingsAnnual = savingsPerUnit * model.annualVolume;
-        const isNegative = savingsPerUnit < 0;
-        return (
-          <div key={model.skuId} onClick={() => setSelectedModel(model)} style={{ background: "#FFF", borderRadius: 12, padding: "20px 24px", border: "1px solid #E5E7EB", marginBottom: 12, cursor: "pointer", transition: "all 0.15s" }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; e.currentTarget.style.borderColor = "#C7D2FE"; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#E5E7EB"; }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                  <span style={{ fontFamily: "monospace", fontSize: 12, color: "#6366F1", fontWeight: 600 }}>{model.skuId}</span>
-                  <span style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>{model.name}</span>
-                </div>
-                <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 12 }}>{model.supplier} · {model.annualVolume.toLocaleString()} units/yr</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
-                  <div><div style={{ fontSize: 11, color: "#6B7280" }}>Current Price</div><div style={{ fontSize: 16, fontWeight: 700 }}>${model.currentUnitCost.toFixed(2)}</div></div>
-                  <div><div style={{ fontSize: 11, color: "#6B7280" }}>ZBB Target</div><div style={{ fontSize: 16, fontWeight: 700, color: isNegative ? "#DC2626" : "#059669" }}>${model.targetUnitCost.toFixed(2)}</div></div>
-                  <div><div style={{ fontSize: 11, color: "#6B7280" }}>Gap/Unit</div><div style={{ fontSize: 16, fontWeight: 700, color: isNegative ? "#DC2626" : "#059669" }}>{isNegative ? "+":"-"}${Math.abs(savingsPerUnit).toFixed(2)}</div></div>
-                  <div><div style={{ fontSize: 11, color: "#6B7280" }}>TCO Gap</div><div style={{ fontSize: 16, fontWeight: 700, color: "#D97706" }}>{model.tco.tcoGapPercent}</div></div>
-                </div>
-              </div>
-              <div style={{ textAlign: "right", marginLeft: 20, padding: "12px 18px", background: isNegative ? "#FEF2F2" : "#ECFDF5", borderRadius: 12 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: isNegative ? "#DC2626" : "#059669" }}>{isNegative ? "-":""}${Math.abs(savingsAnnual/1000).toFixed(0)}K</div>
-                <div style={{ fontSize: 11, color: isNegative ? "#991B1B" : "#065F46" }}>{isNegative ? "annual cost increase" : "annual savings"}</div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      {filtered.length === 0 && (
-        <div style={{ textAlign: "center", padding: 40, color: "#9CA3AF", fontSize: 14 }}>No cost models found matching "{searchQuery}"</div>
-      )}
-    </div>
-  );
-};
-
-// ─── Main App ──────────────────────────────────────────────────
-function ProcurementIntelligence() {
-  const [page, setPage] = useState("search");
-  const [appTab, setAppTab] = useState("hopper");
-  const [query, setQuery] = useState("");
-  const [result, setResult] = useState(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const inputRef = useRef(null);
-
-  const handleSearch = (searchQuery) => {
-    const q = searchQuery || query;
-    if (!q.trim()) return;
-    setIsSearching(true); setResult(null);
-    setTimeout(() => { setResult(processQuery(q)); setIsSearching(false); }, 600);
-  };
-
-  useEffect(() => { if (page === "search" && inputRef.current) inputRef.current.focus(); }, [page]);
-
-  const suggestions = ["Find me a supplier for HVAC in Mississippi", "Show me warranty spend overview", "What are my active opportunities?", "Show me the scorecard for Precision Steel", "Which contracts are expiring soon?", "Show me supply chain risks"];
-
-  return (
-    <div style={{ minHeight: "100vh", background: "#F3F4F6", fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap');
-        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-        input::placeholder { color: #9CA3AF; }
-      `}</style>
-
-      {/* Header */}
-      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E5E7EB", padding: "0" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #6366F1, #4F46E5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ color: "#FFF", fontWeight: 700, fontSize: 14 }}>G</span>
-              </div>
-              <span style={{ fontWeight: 700, fontSize: 16, color: "#111827", letterSpacing: "-0.02em" }}>Glean</span>
-              <span style={{ color: "#D1D5DB", margin: "0 4px" }}>·</span>
-              <span style={{ fontSize: 14, color: "#6B7280", fontWeight: 500 }}>Procurement Intelligence</span>
-            </div>
-            <span style={{ padding: "4px 12px", background: "#F0FDF4", color: "#166534", borderRadius: 100, fontSize: 11, fontWeight: 600 }}>MVP Prototype</span>
-          </div>
-          {/* Navigation */}
-          <div style={{ display: "flex", gap: 0 }}>
-            {[{ id: "search", label: "Search", icon: "🔍" }, { id: "app", label: "Procurement App", icon: "📊" }].map(tab => (
-              <button key={tab.id} onClick={() => { setPage(tab.id); if (tab.id === "search") { setResult(null); setQuery(""); } }} style={{
-                padding: "10px 20px", background: "none", border: "none", borderBottom: page === tab.id ? "2px solid #4F46E5" : "2px solid transparent",
-                color: page === tab.id ? "#4F46E5" : "#6B7280", fontWeight: page === tab.id ? 600 : 400, fontSize: 14, cursor: "pointer", fontFamily: "inherit",
-                transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6
-              }}>{tab.label}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
-
-        {/* ═══ SEARCH PAGE ═══ */}
-        {page === "search" && (<>
-          {!result && !isSearching && (
-            <div style={{ textAlign: "center", marginBottom: 40, animation: "fadeSlideIn 0.5s ease-out" }}>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: "#111827", marginBottom: 8, letterSpacing: "-0.03em" }}>What do you need to know?</h1>
-              <p style={{ fontSize: 15, color: "#6B7280", maxWidth: 500, margin: "0 auto" }}>Ask about suppliers, parts, spend, risks, contracts, or opportunities across your categories.</p>
-            </div>
-          )}
-          <div style={{ background: "#FFF", borderRadius: 16, padding: "6px 6px 6px 20px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)", marginBottom: 24, position: "sticky", top: 12, zIndex: 10 }}>
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" strokeLinecap="round"/></svg>
-            <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()} placeholder="Ask anything about your procurement data..." style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#111827", background: "transparent", padding: "12px 0", fontFamily: "inherit" }} />
-            <button onClick={() => handleSearch()} style={{ padding: "10px 20px", borderRadius: 12, border: "none", background: query.trim() ? "linear-gradient(135deg, #6366F1, #4F46E5)" : "#E5E7EB", color: query.trim() ? "#FFF" : "#9CA3AF", fontWeight: 600, fontSize: 13, cursor: query.trim() ? "pointer" : "default", fontFamily: "inherit" }}>Search</button>
-          </div>
-          {!result && !isSearching && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 32, animation: "fadeSlideIn 0.6s ease-out" }}>
-              {suggestions.map(s => (
-                <button key={s} onClick={() => { setQuery(s); handleSearch(s); }} style={{ padding: "8px 16px", borderRadius: 100, border: "1px solid #E5E7EB", background: "#FFF", color: "#374151", fontSize: 13, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#EEF2FF"; e.currentTarget.style.borderColor = "#C7D2FE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#FFF"; e.currentTarget.style.borderColor = "#E5E7EB"; }}
-                >{s}</button>
-              ))}
-            </div>
-          )}
-          {isSearching && (
-            <div style={{ textAlign: "center", padding: 60, animation: "fadeSlideIn 0.3s ease-out" }}>
-              <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 16 }}>{[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "#6366F1", animation: `pulse 1.2s ease-in-out ${i*0.15}s infinite` }} />)}</div>
-              <div style={{ fontSize: 14, color: "#6B7280" }}>Searching across enterprise systems and market data...</div>
-            </div>
-          )}
-          {result && (
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", letterSpacing: "-0.02em" }}>{result.title}</h2>
-                <button onClick={() => { setResult(null); setQuery(""); inputRef.current?.focus(); }} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid #E5E7EB", background: "#FFF", color: "#6B7280", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>New search</button>
-              </div>
-              <SearchResultView result={result} />
-            </div>
-          )}
-          {!result && !isSearching && (
-            <div style={{ textAlign: "center", marginTop: 60, padding: 24, animation: "fadeSlideIn 0.7s ease-out" }}>
-              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9CA3AF", marginBottom: 12, fontWeight: 600 }}>Connected data sources</div>
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                {["SAP ERP", "Coupa", "Teamcenter PLM", "Quality System", "Contract CLM", "D&B Financials", "Commodity Indices"].map(s => (
-                  <span key={s} style={{ padding: "6px 14px", borderRadius: 8, background: "#FFF", border: "1px solid #E5E7EB", fontSize: 12, color: "#6B7280", display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />{s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </>)}
-
-        {/* ═══ APP PAGE ═══ */}
-        {page === "app" && (<>
-          {/* App Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-            {[{ id: "hopper", label: "Opportunity Hopper", icon: "💡" }, { id: "cost", label: "Cost Management", icon: "📐" }].map(tab => (
-              <button key={tab.id} onClick={() => setAppTab(tab.id)} style={{
-                padding: "10px 22px", borderRadius: 10, border: "1px solid",
-                background: appTab === tab.id ? "#4F46E5" : "#FFF", color: appTab === tab.id ? "#FFF" : "#374151",
-                borderColor: appTab === tab.id ? "#4F46E5" : "#E5E7EB", fontWeight: 600, fontSize: 14, cursor: "pointer", fontFamily: "inherit",
-                transition: "all 0.15s", display: "flex", alignItems: "center", gap: 8
-              }}><span>{tab.icon}</span>{tab.label}</button>
-            ))}
-          </div>
-
-          {appTab === "hopper" && <HopperTab />}
-          {appTab === "cost" && <CostManagementTab />}
-        </>)}
-      </div>
-    </div>
-  );
-}
-
-
-ReactDOM.createRoot(document.getElementById('root')).render(<ProcurementIntelligence />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
