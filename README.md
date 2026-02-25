@@ -1,166 +1,122 @@
-# Glean Procurement Intelligence Platform
+# Procurement Intelligence Platform
 
-An interactive prototype demonstrating AI-powered procurement intelligence built on Glean's enterprise infrastructure. Built for an engineering audience to show what's possible when you layer an agentic AI engine over procurement data.
+An interactive prototype demonstrating how AI can transform procurement from manual, reactive work into intelligent, proactive decision-making.
 
-**Live prototype:** https://procurement-prototype-eight.vercel.app/
+**Live demo:** [procurement-prototype-eight.vercel.app](https://procurement-prototype-eight.vercel.app/)
 
 ---
 
-## What This Demonstrates
+## What This Is
 
-Procurement managers spend 70%+ of their time in reactive mode: manually pulling data from ERPs, chasing down contract expiry dates, trying to connect commodity price movements to actual cost impact. The only alternative today is hiring McKinsey for a point-in-time analysis.
+A single-file React application that shows what a Procurement Intelligence platform looks like in practice. The prototype covers the full workflow: from searching across enterprise data sources, to surfacing savings opportunities, to drafting supplier negotiation emails.
 
-This prototype shows a different model. An always-on intelligence layer that watches your supplier network, monitors commodity markets, tracks contract lifecycles, and surfaces actionable opportunities before you think to ask.
+Built as a standalone HTML file. No build step, no backend, no dependencies beyond CDN-hosted React and Babel.
 
 ---
 
 ## How to Navigate
 
-The prototype has two main areas: **Search** and the **Procurement App**.
+The app has two main views, toggled at the top: **Search** and **Apps**.
 
----
+### Search
 
-### Search Page
-
-The entry point. Shows what it feels like to ask natural language questions across fragmented procurement data.
-
-**What's interactive:**
-- Type any query and hit Enter or click Search
-- Click any suggestion pill to pre-fill a query
-- Hit the **✕** button inside the search bar to clear results and return to the home state (works like Google)
-- Results show which data sources were consulted (Enterprise Graph, ERP, Quality System, etc.)
-
-**Suggestion pills are organized in two rows:**
-
-| Row | Suggestions |
-|-----|-------------|
-| Top (HVAC-focused, highlighted) | Compare HVAC suppliers Southeast · Find alternative HVAC suppliers and compare TCO to ThermoFlow · HVAC supplier quality scorecards |
-| Bottom | Warranty spend by supplier · Upcoming contract expirations · High-risk supplier exposure |
+Type a natural language query or click any suggestion pill. The search demonstrates how AI assembles answers from multiple enterprise systems (ERP, Quality Systems, Contract CLM, Market Feeds) in real time.
 
 **Try these queries:**
-| Query | What you'll see |
-|-------|----------------|
-| `HVAC supplier quality scorecards` | Supplier cards with quality, delivery, and cost scores |
-| `Warranty spend by supplier` | Warranty cost table with defect rates |
-| `Upcoming contract expirations` | Contracts at risk with dollar exposure |
-| `High-risk supplier exposure` | Supply chain risk opportunities |
-| `Compare HVAC suppliers Southeast` | **Triggers agent thinking + side-by-side comparison** |
-| `Find alternative HVAC suppliers and compare TCO to ThermoFlow` | **Full agent execution demo** |
+- `Compare HVAC suppliers Southeast` — triggers the agent thinking animation, then shows a side-by-side supplier comparison
+- `Find alternative HVAC suppliers and compare TCO to ThermoFlow` — surfaces alternative suppliers with total cost of ownership analysis
+- `HVAC supplier quality scorecards` — returns supplier cards with quality, delivery, and cost scores
+- `Warranty spend by supplier` — shows warranty spend table with defect rates
+- `Upcoming contract expirations` — lists contracts approaching renewal
+- `High-risk supplier exposure` — flags suppliers with financial or delivery risk
 
-**Morning Briefing (visible before you search):**
-The "Today's Briefing" panel shows proactive push notifications — commodity price movements, delivery misses, contract alerts. Click any action button to navigate directly to the relevant section of the app. This demonstrates the shift from pull (search) to push (intelligence).
+**Morning Briefing** appears below the search bar before any query is entered. It shows priority-coded notifications (commodity price drops, delivery misses, contract deadlines) that demonstrate the shift from pull-based search to push-based proactive intelligence.
 
-**Agent Thinking Visualization (triggered on complex queries):**
-When you type a comparative or multi-hop query, the Agentic Engine shows its step-by-step reasoning: planning → searching Enterprise Graph → pulling supplier data → running cost models → generating insights. Each step completes before the results appear.
+### Apps
 
----
-
-### Procurement App
-
-Click "Procurement App" in the top nav. Four tabs.
-
----
+Four tabs inside the Apps view:
 
 #### Opportunity Hopper
+A pipeline of 9 savings opportunities across 4 categories:
+- **Commodity Changes** — copper, steel, wire rod price movements
+- **Contract Renewals** — upcoming expirations with negotiation context
+- **Supply Chain Risks** — tariff exposure, supplier financial health
+- **VAVE** — value analysis and spec consolidation
 
-The AI-generated savings pipeline. Every opportunity was surfaced by monitoring commodity prices, contract expiry windows, supplier financial health, and engineering change notices.
+Filter by classification or status (Viewed, Investigating, Under Progress, Completed).
 
-**What's interactive:**
-- **Classification filter** (first row): All · Commodity Changes · Contract Renewals · Supply Chain Risks · VAVE
-- **Status filter** (second row, below classification): All · New · Viewed · In Progress · Completed
-- Click any opportunity to open the detail view
-- **Change status from inside any opportunity** — "In Progress" and "Completed" buttons appear at the bottom of every detail view. Status updates immediately and reflects back in the list.
-
-**Opportunity cards show:**
-- Classification type on the first badge row
-- Status badge on its own row below
-- Title, description preview, and estimated impact
-
-**Commodity Change detail view** (click any Commodity Changes opportunity):
-- Price movement cards: current vs 3 months ago vs 6 months ago
-- Unit price impact: current material cost vs market benchmark vs savings/unit
-- Total Cost of Ownership breakdown
-- Affected parts list with SKU details
-
-**✅ "Draft Email" is fully interactive** — opens a pre-written supplier negotiation email with all cost data populated. Copy to clipboard with one click.
-
-⬜ "Launch RFP" and "Add to Backlog" are grayed out (Coming soon)
-
----
+**Click any commodity opportunity** to see the full drill-down: commodity price movement, unit price impact, TCO breakdown, affected parts, and recommended actions. The **"Draft Email"** button is fully interactive and generates a supplier negotiation email pre-filled with cost data.
 
 #### Cost Management
-
-Zero-based costing and Total Cost of Ownership analysis for key components.
-
-**What's interactive:**
-- Search or filter by SKU ID, part name, or supplier
-- Click any cost model to open the detail view showing ZBB breakdown and TCO analysis
-
-**Three cost models available:** Cabin HVAC Module, Main Wiring Harness, Front Door Panel
-
----
+Three cost models (Cabin HVAC Module, Main Wiring Harness, Front Door Panel). Click any model to see:
+- Zero-Based Cost breakdown with market benchmarks for each component
+- Total Cost of Ownership analysis (unit price + quality + logistics + inventory + admin + tariff)
+- Gap percentage vs benchmark
 
 #### Triggers
+Six pre-configured triggers (commodity price drops, contract expiry, financial health decline, tariffs, quality defects, engineering spec changes). Toggle triggers on/off and create custom triggers with the "+ New Trigger" form.
 
-Automated signals that surface intelligence without requiring someone to manually check.
-
-**What's interactive:**
-- Toggle any trigger on or off
-- **"+ New Trigger" button** opens a form to create a custom trigger
-
-**Six pre-configured triggers:** Commodity Price Drop, Contract Expiry Alert, Supplier Financial Health, Section 301 Tariff Impact, Quality Defect Threshold, Engineering Spec Change
-
----
-
-#### Impact Intelligence ✨
-
-Closes the loop from identified opportunity to verified financial impact.
-
-**What's interactive:**
-- Toggle between **My View**, **Director**, and **C-Suite** roll-up views — all dollar values scale accordingly
-- Pipeline waterfall: Identified ($2.96M) → In Progress ($1.82M) → Verified Savings ($920K)
-- Quarterly trend chart: Q3 2025 through Q1 2026
-- Category breakdown: HVAC, Electronics, Steel, Fasteners
-- Verified savings log with individual line items
+#### Impact Intelligence
+Savings tracking from identification through verified financial impact:
+- Pipeline funnel: $2.96M Identified → $1.82M In Progress → $920K Verified
+- Quarterly trend across Q3 2025, Q4 2025, Q1 2026
+- Savings breakdown by category (HVAC, Electronics, Steel, Fasteners)
+- Verified savings table with individual line items
+- Roll-up views: Individual Contributor, Director, C-Suite
 
 ---
 
-## What's Not Interactive (Display Only)
+## What's Interactive vs Display-Only
 
-| Feature | Status |
-|---------|--------|
-| Launch RFP from opportunity detail | Coming soon |
-| Add to Backlog from opportunity detail | Coming soon |
-| Email send (copy-to-clipboard only) | By design |
-| Trigger → Hopper automation | Display only |
-| Real supplier / spend data | All data is illustrative |
-| ERP / CLM integration | Simulated |
+| Feature | Interactive |
+|---------|-----------|
+| Search queries | ✅ Type or click suggestion pills |
+| Agent thinking animation | ✅ Triggered on complex queries |
+| Supplier comparison | ✅ Appears after agent completes on comparison queries |
+| Morning briefing actions | ✅ Navigate to relevant sections |
+| Opportunity Hopper filters | ✅ Filter by classification and status |
+| Commodity drill-down | ✅ Click any commodity opportunity |
+| Draft Email button | ✅ Opens modal with copy-to-clipboard |
+| Cost model drill-down | ✅ Click any cost model |
+| Trigger toggles | ✅ Enable/disable triggers |
+| New Trigger form | ✅ Create custom triggers |
+| Impact dashboard views | ✅ Switch between IC/Director/C-Suite |
+| Launch RFP button | Display only (Coming Soon) |
+| Add to Backlog button | Display only (Coming Soon) |
 
 ---
 
-## Technical Details
+## Tech Stack
 
+- React 18.2.0 (CDN)
+- ReactDOM 18.2.0 (CDN)
+- Babel Standalone 7.23.9 (in-browser JSX compilation)
+- DM Sans font (Google Fonts)
+- No build step. No npm. No framework. Single HTML file.
+
+---
+
+## Local Development
+
+```bash
+# Clone the repo
+git clone https://github.com/BadriV1/procurement-prototype.git
+cd procurement-prototype
+
+# Open directly in browser
+open index.html
+
+# Or serve locally
+python3 -m http.server 8000
+# Visit http://localhost:8000
 ```
-procurement-prototype/
-├── index.html     # Entire app — single file, no build step
-├── vercel.json    # {"buildCommand":"","outputDirectory":"."}
-├── README.md
-└── .gitignore
+
+## Deployment
+
+Connected to Vercel. Push to main and it auto-deploys in ~15 seconds.
+
+```bash
+git add .
+git commit -m "description of changes"
+git push
 ```
-
-**Stack:** React 18.2.0 + Babel Standalone (in-browser JSX compilation). No npm, no framework, no build step. All data is hardcoded.
-
-**Deploy:** Edit `index.html` → `git add . && git commit -m "msg" && git push` → Vercel auto-deploys in ~30 seconds.
-
----
-
-## Why Glean Makes This Possible
-
-Everything in this prototype relies on capabilities that Glean already ships:
-
-- **Enterprise Graph** — cross-system entity relationships that connect a copper price drop to a specific SKU to a specific contract to a specific supplier
-- **100+ connectors** — ERP, quality systems, contract CLMs, supplier databases, commodity feeds all flowing into one graph
-- **Agentic Engine** — multi-step reasoning that turns "compare HVAC suppliers" into a structured TCO analysis
-- **MCP framework** — the action layer that can draft emails, trigger RFPs, and write to Coupa or SAP Ariba
-
-No existing procurement tool connects these layers. Most stop at reporting. This shows what happens when you add an intelligence and execution layer on top.
