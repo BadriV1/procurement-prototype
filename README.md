@@ -1,122 +1,159 @@
-# Procurement Intelligence Platform
+# Uber Eats — Packaged Meals Interactive Prototype
 
-An interactive prototype demonstrating how AI can transform procurement from manual, reactive work into intelligent, proactive decision-making.
+An interactive mobile prototype demonstrating how packaged meal delivery could integrate into the existing Uber Eats experience. Built as a single-file React component rendered inside a realistic iPhone frame.
 
-**Live demo:** [procurement-prototype-eight.vercel.app](https://procurement-prototype-eight.vercel.app/)
-
----
-
-## What This Is
-
-A single-file React application that shows what a Procurement Intelligence platform looks like in practice. The prototype covers the full workflow: from searching across enterprise data sources, to surfacing savings opportunities, to drafting supplier negotiation emails.
-
-Built as a standalone HTML file. No build step, no backend, no dependencies beyond CDN-hosted React and Babel.
+**[Live Demo →](#)** *(update with your Vercel URL after deploy)*
 
 ---
 
-## How to Navigate
+## What This Prototype Demonstrates
 
-The app has two main views, toggled at the top: **Search** and **Apps**.
+This prototype was built for the **Uber Eats PM Jam Session** on integrating packaged meal services into Uber Eats. It covers the full end-to-end user journey:
 
-### Search
+### Home Screen (Uber Eats Today + Packaged Meals)
+- Faithful recreation of the current Uber Eats mobile layout
+- **"Packaged Meals"** tab added next to Grocery in the top navigation (with NEW badge)
+- Green promotional banner for packaged meals integrated into the home feed
+- "Top Rated Packaged Meals" carousel alongside existing restaurant content
+- Active meal plan card with quick access to plan management
 
-Type a natural language query or click any suggestion pill. The search demonstrates how AI assembles answers from multiple enterprise systems (ERP, Quality Systems, Contract CLM, Market Feeds) in real time.
+### Packaged Meals Browse
+- **Meal type selection** — Breakfast, Lunch, Dinner, Snack filter chips with accordion dropdown to set quantity per type
+- **Dietary filters** — High-Protein, Keto, Plant-Based, GLP-1 Friendly, Low-Calorie, Allergen-Free
+- **Three view modes** — Meals | Chefs | Meal Providers toggle
+- **Sampler bundles** — Low-commitment trial packs (4 meals at a discount, no subscription)
+- **Meal grid** — Cards with ratings, reviews, calories, protein, price, and add-to-cart
 
-**Try these queries:**
-- `Compare HVAC suppliers Southeast` — triggers the agent thinking animation, then shows a side-by-side supplier comparison
-- `Find alternative HVAC suppliers and compare TCO to ThermoFlow` — surfaces alternative suppliers with total cost of ownership analysis
-- `HVAC supplier quality scorecards` — returns supplier cards with quality, delivery, and cost scores
-- `Warranty spend by supplier` — shows warranty spend table with defect rates
-- `Upcoming contract expirations` — lists contracts approaching renewal
-- `High-risk supplier exposure` — flags suppliers with financial or delivery risk
+### Meal Detail
+- Full nutrition breakdown (Calories, Protein, Carbs, Fat)
+- Reheating instructions, shelf life, storage info
+- Per-meal user ratings and reviews (a feature no competitor currently offers)
+- Link to creator/chef profile
 
-**Morning Briefing** appears below the search bar before any query is entered. It shows priority-coded notifications (commodity price drops, delivery misses, contract deadlines) that demonstrate the shift from pull-based search to push-based proactive intelligence.
+### Creator & Chef Profiles
+- Bio, specialty badges, star rating
+- Menu tab with all their meals
+- Sampler tab with discounted bundles
+- Reviews tab with customer feedback
 
-### Apps
+### Cart & Checkout
+- 4-meal minimum enforcement
+- Delivery frequency selection (1x or 2x per week)
+- Optional plan creation (One-time / Weekly / Monthly) — positioned as convenience, not subscription
+- Clear cart option
+- Delivery window selection (2-hour windows)
+- Full order confirmation flow
 
-Four tabs inside the Apps view:
-
-#### Opportunity Hopper
-A pipeline of 9 savings opportunities across 4 categories:
-- **Commodity Changes** — copper, steel, wire rod price movements
-- **Contract Renewals** — upcoming expirations with negotiation context
-- **Supply Chain Risks** — tariff exposure, supplier financial health
-- **VAVE** — value analysis and spec consolidation
-
-Filter by classification or status (Viewed, Investigating, Under Progress, Completed).
-
-**Click any commodity opportunity** to see the full drill-down: commodity price movement, unit price impact, TCO breakdown, affected parts, and recommended actions. The **"Draft Email"** button is fully interactive and generates a supplier negotiation email pre-filled with cost data.
-
-#### Cost Management
-Three cost models (Cabin HVAC Module, Main Wiring Harness, Front Door Panel). Click any model to see:
-- Zero-Based Cost breakdown with market benchmarks for each component
-- Total Cost of Ownership analysis (unit price + quality + logistics + inventory + admin + tariff)
-- Gap percentage vs benchmark
-
-#### Triggers
-Six pre-configured triggers (commodity price drops, contract expiry, financial health decline, tariffs, quality defects, engineering spec changes). Toggle triggers on/off and create custom triggers with the "+ New Trigger" form.
-
-#### Impact Intelligence
-Savings tracking from identification through verified financial impact:
-- Pipeline funnel: $2.96M Identified → $1.82M In Progress → $920K Verified
-- Quarterly trend across Q3 2025, Q4 2025, Q1 2026
-- Savings breakdown by category (HVAC, Electronics, Steel, Fasteners)
-- Verified savings table with individual line items
-- Roll-up views: Individual Contributor, Director, C-Suite
+### My Meal Plan
+- Sample active weekly plan with 7 meals across 2 deliveries
+- Weekly nutrition summary (meals, avg calories, avg protein)
+- Plan management actions — Edit Meals, Skip Week, Change Frequency, Pause, Cancel
 
 ---
 
-## What's Interactive vs Display-Only
+## Key Product Decisions Reflected in the Prototype
 
-| Feature | Interactive |
-|---------|-----------|
-| Search queries | ✅ Type or click suggestion pills |
-| Agent thinking animation | ✅ Triggered on complex queries |
-| Supplier comparison | ✅ Appears after agent completes on comparison queries |
-| Morning briefing actions | ✅ Navigate to relevant sections |
-| Opportunity Hopper filters | ✅ Filter by classification and status |
-| Commodity drill-down | ✅ Click any commodity opportunity |
-| Draft Email button | ✅ Opens modal with copy-to-clipboard |
-| Cost model drill-down | ✅ Click any cost model |
-| Trigger toggles | ✅ Enable/disable triggers |
-| New Trigger form | ✅ Create custom triggers |
-| Impact dashboard views | ✅ Switch between IC/Director/C-Suite |
-| Launch RFP button | Display only (Coming Soon) |
-| Add to Backlog button | Display only (Coming Soon) |
+| Decision | Rationale |
+|----------|-----------|
+| **No subscription required** | Addresses subscription fatigue — the #1 reason for churn in competitors like Factor and HelloFresh |
+| **Marketplace model (multi-creator cart)** | Users can mix meals from different chefs/providers in one order — no competitor allows this |
+| **Ratings & reviews on every meal** | The single trust feature no packaged meal platform currently offers |
+| **4-meal minimum** | Balances unit economics (batch delivery efficiency) with low commitment entry |
+| **2x/week delivery option** | Solves freshness concerns — receiving 7 meals Monday means Friday meals are 5-6 days old |
+| **Sampler bundles** | Low-risk trial path that builds confidence before plan conversion |
+| **Chefs vs. Meal Providers distinction** | Reflects the two supply-side segments: independent chefs and established meal prep companies |
 
 ---
 
 ## Tech Stack
 
-- React 18.2.0 (CDN)
-- ReactDOM 18.2.0 (CDN)
-- Babel Standalone 7.23.9 (in-browser JSX compilation)
-- DM Sans font (Google Fonts)
-- No build step. No npm. No framework. Single HTML file.
+- **React** (single-file component, no external dependencies beyond React itself)
+- **Vite** for build tooling
+- Inline styles matching Uber's design system (colors, typography, spacing)
+- iPhone 14 Pro frame (393×852) for realistic mobile presentation
 
 ---
 
-## Local Development
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Local Development
 
 ```bash
 # Clone the repo
-git clone https://github.com/BadriV1/procurement-prototype.git
-cd procurement-prototype
+git clone https://github.com/YOUR_USERNAME/Delivery-takehome.git
+cd Delivery-takehome
 
-# Open directly in browser
-open index.html
+# Install dependencies
+npm install
 
-# Or serve locally
-python3 -m http.server 8000
-# Visit http://localhost:8000
+# Start dev server
+npm run dev
 ```
 
-## Deployment
+Open `http://localhost:5173` in your browser.
 
-Connected to Vercel. Push to main and it auto-deploys in ~15 seconds.
+### Build for Production
 
 ```bash
-git add .
-git commit -m "description of changes"
-git push
+npm run build
 ```
+
+Output goes to `dist/`.
+
+---
+
+## Project Structure
+
+```
+Delivery-takehome/
+├── src/
+│   ├── App.jsx          # Main prototype component (all screens)
+│   └── main.jsx         # React entry point
+├── index.html
+├── package.json
+├── vite.config.js
+└── README.md
+```
+
+---
+
+## Deploy to Vercel
+
+1. Push this repo to GitHub
+2. Go to [vercel.com](https://vercel.com) → Add New Project → Import this repo
+3. Vercel auto-detects Vite — click **Deploy**
+4. Share the generated URL with your team
+
+Every push to `main` triggers an automatic redeploy.
+
+---
+
+## Supporting Documents
+
+The following preparation documents informed this prototype:
+
+- **Packaged Meals Case Prep** — Market landscape, competitive analysis, customer segments, opportunity sizing
+- **Jam Session Brief** — Original problem statement and evaluation criteria
+- **Solution Document** — Detailed stakeholder value, solution design, launch strategy, metrics framework, FAQs
+
+---
+
+## Screens Overview
+
+| Screen | Description |
+|--------|-------------|
+| **Home** | Uber Eats home with Packaged Meals integration |
+| **Packaged Meals** | Browse with meal type accordion, diet filters, view toggle |
+| **Meal Detail** | Nutrition, reviews, reheating info |
+| **Creator Profile** | Chef/Provider bio, menu, samplers, reviews |
+| **Cart** | Quantity controls, delivery frequency, plan options, clear cart |
+| **Checkout** | Address, delivery window, payment, order confirmation |
+| **My Plan** | Active plan view with deliveries, summary, management actions |
+
+---
+
+*Built for the Uber Eats Packaged Meals Jam Session*
